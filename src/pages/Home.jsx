@@ -242,6 +242,15 @@ export default function Home() {
             currentSatoshi={currentSatoshi}
           />
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6 }}
+          className="lg:col-span-3"
+        >
+          <SovereignValidator />
+        </motion.div>
       </div>
     </div>
   );
