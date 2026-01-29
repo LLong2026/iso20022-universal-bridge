@@ -14,33 +14,44 @@ export default function IsoBridge({ onTransfer, lastTransaction, hasTokens }) {
 
     setXrpStatus('ENCODING');
 
-    const xml = `<Document xmlns="urn:iso:std:iso:20022...">
+    const bindingHash = 'A1B2' + Math.random().toString(36).substring(2, 8).toUpperCase() + 'C3D4';
+    const xml = `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">
   <FIToFICstmrCdtTrf>
     <GrpHdr>
       <MsgId>${lastTransaction.txId}</MsgId>
       <CreDtTm>${lastTransaction.timestamp}</CreDtTm>
       <SttlmInf>
-        <SttlmMtd>XRP_LEDGER</SttlmMtd>
+        <SttlmMtd>CLRG</SttlmMtd>
         <ClrSys>
-          <Cd>XRPL</Cd>
+          <Prtry>XRPL</Prtry>
         </ClrSys>
       </SttlmInf>
     </GrpHdr>
     <CdtTrfTxInf>
-      <IntrBkSttlmAmt Ccy="XAU">
-        ${lastTransaction.amount}.00
-      </IntrBkSttlmAmt>
-      <XrpBridge>
-        <LedgerIndex>PENDING</LedgerIndex>
-        <NetworkFee>0.00001 XRP</NetworkFee>
-        <Settlement>3-5 SECONDS</Settlement>
-      </XrpBridge>
+      <PmtId>
+        <EndToEndId>LSL-TX-${lastTransaction.txId.split('-')[1]}</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="XAU">${lastTransaction.amount}.00</IntrBkSttlmAmt>
+      
       <Dbtr>
         <Nm>${lastTransaction.sender}</Nm>
       </Dbtr>
       <Cdtr>
         <Nm>${lastTransaction.receiver}</Nm>
       </Cdtr>
+
+      <SplmtryData>
+        <PlcAndNm>LONE_STAR_BRIDGE</PlcAndNm>
+        <Envlp>
+          <XrpBridge>
+            <LedgerIndex>PENDING</LedgerIndex>
+            <NetworkFee>0.00001 XRP</NetworkFee>
+            <Settlement>3-5 SECONDS</Settlement>
+            <Hash>${bindingHash}</Hash>
+          </XrpBridge>
+        </Envlp>
+      </SplmtryData>
+
     </CdtTrfTxInf>
   </FIToFICstmrCdtTrf>
 </Document>`;

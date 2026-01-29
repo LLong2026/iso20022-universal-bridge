@@ -28,24 +28,44 @@ Deno.serve(async (req) => {
 
     // Generate ISO 20022 XML
     const timestamp = new Date().toISOString();
+    const bindingHash = 'A1B2' + Math.random().toString(36).substring(2, 8).toUpperCase() + 'C3D4';
     const iso20022Xml = `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">
   <FIToFICstmrCdtTrf>
     <GrpHdr>
       <MsgId>${txId}</MsgId>
       <CreDtTm>${timestamp}</CreDtTm>
       <SttlmInf>
-        <SttlmMtd>XRP_LEDGER</SttlmMtd>
-        <ClrSys><Cd>XRPL</Cd></ClrSys>
+        <SttlmMtd>CLRG</SttlmMtd>
+        <ClrSys>
+          <Prtry>XRPL</Prtry>
+        </ClrSys>
       </SttlmInf>
     </GrpHdr>
     <CdtTrfTxInf>
+      <PmtId>
+        <EndToEndId>LSL-TX-${txId.split('-')[1]}</EndToEndId>
+      </PmtId>
       <IntrBkSttlmAmt Ccy="XAU">${amount_grams}.00</IntrBkSttlmAmt>
-      <XrpBridge>
-        <UTXO>${currentUtxo.utxo_id}</UTXO>
-        <NetworkFee>0.00001 XRP</NetworkFee>
-      </XrpBridge>
-      <Dbtr><Nm>${sender}</Nm></Dbtr>
-      <Cdtr><Nm>${receiver}</Nm></Cdtr>
+      
+      <Dbtr>
+        <Nm>${sender}</Nm>
+      </Dbtr>
+      <Cdtr>
+        <Nm>${receiver}</Nm>
+      </Cdtr>
+
+      <SplmtryData>
+        <PlcAndNm>LONE_STAR_BRIDGE</PlcAndNm>
+        <Envlp>
+          <XrpBridge>
+            <LedgerIndex>PENDING</LedgerIndex>
+            <NetworkFee>0.00001 XRP</NetworkFee>
+            <Settlement>3-5 SECONDS</Settlement>
+            <Hash>${bindingHash}</Hash>
+          </XrpBridge>
+        </Envlp>
+      </SplmtryData>
+
     </CdtTrfTxInf>
   </FIToFICstmrCdtTrf>
 </Document>`;
