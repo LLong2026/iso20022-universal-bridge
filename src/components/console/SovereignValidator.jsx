@@ -86,8 +86,55 @@ export default function SovereignValidator() {
           <div className="absolute bottom-0.5 right-0.5 text-[8px] text-gray-600">
             PEER TRAFFIC INBOUND
           </div>
-        </div>
-      </div>
-    </Panel>
-  );
-}
+          </div>
+
+          {/* Hardening Protocol Status */}
+          <div className="pt-3 border-t border-[#333]">
+          <div className="text-[10px] text-gray-500 mb-2">TSI NODE HARDENING v1.0:</div>
+          <div className="space-y-1 text-[9px] font-mono">
+            <div className="flex items-center gap-2">
+              <motion.div
+                className="w-1 h-1 bg-green-500 rounded-full"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              <span className="text-green-400">✓ TELEMETRY PURGED</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.div
+                className="w-1 h-1 bg-green-500 rounded-full"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
+              />
+              <span className="text-green-400">✓ KERNEL LOCKDOWN: CONFIDENTIALITY</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.div
+                className="w-1 h-1 bg-green-500 rounded-full"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
+              />
+              <span className="text-green-400">✓ NETWORK STEALTH (IPv6 DISABLED)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.div
+                className="w-1 h-1 bg-green-500 rounded-full"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
+              />
+              <span className="text-green-400">✓ LXD ENCLAVE ACTIVE (ISOLATED)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.div
+                className="w-1 h-1 bg-cyan-400 rounded-full"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 0.8 }}
+              />
+              <span className="text-cyan-400">⚡ MESH-RADIO-ENCLAVE LIVE</span>
+            </div>
+          </div>
+          </div>
+          </div>
+          </Panel>
+          );
+          }
