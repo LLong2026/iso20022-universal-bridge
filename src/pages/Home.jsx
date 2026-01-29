@@ -8,6 +8,7 @@ import IsoBridge from '@/components/console/IsoBridge';
 import TopologicalResonance from '@/components/console/TopologicalResonance';
 import AuditDashboard from '@/components/console/AuditDashboard';
 import StatusBadge from '@/components/console/StatusBadge';
+import SovereignValidator from '@/components/console/SovereignValidator';
 
 export default function Home() {
   const queryClient = useQueryClient();
