@@ -231,6 +231,7 @@ export default function Home() {
           />
         </motion.div>
 
+        {/* Row 3 */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -248,6 +249,7 @@ export default function Home() {
           <GlobalUplink />
         </motion.div>
 
+        {/* Row 4 */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
