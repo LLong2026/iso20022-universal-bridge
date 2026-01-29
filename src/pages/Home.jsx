@@ -9,6 +9,7 @@ import TopologicalResonance from '@/components/console/TopologicalResonance';
 import AuditDashboard from '@/components/console/AuditDashboard';
 import StatusBadge from '@/components/console/StatusBadge';
 import SovereignValidator from '@/components/console/SovereignValidator';
+import GlobalUplink from '@/components/console/GlobalUplink';
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -232,9 +233,17 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6 }}
-          className="lg:col-span-3"
+          className="lg:col-span-2"
         >
           <SovereignValidator />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.7 }}
+        >
+          <GlobalUplink />
         </motion.div>
       </div>
     </div>
