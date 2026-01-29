@@ -74,18 +74,20 @@ export default function AuditDashboard({ physicalGold, digitalTokens }) {
           </div>
         </div>
 
-        {/* UTXO Scout Section */}
+        {/* XRP Payment Rail Section */}
         <div className="pt-3 border-t border-[#333]">
           <label className="text-xs text-gray-500 flex items-center gap-2 mb-2">
             <Radar className="w-3 h-3" />
-            UTXO SCOUT
+            XRP PAYMENT RAIL
           </label>
           <motion.div 
-            className="text-[10px] text-[#d4af37] bg-black/50 p-2 border border-[#333]"
+            className="text-[10px] bg-black/50 p-2 border border-[#333] space-y-1"
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            TARGET: SAT-992834... (READY)
+            <div className="text-blue-400">⚡ XRPL NODE: SYNCED</div>
+            <div className="text-[#d4af37]">TARGET: SAT-992834... (READY)</div>
+            <div className="text-green-400">SETTLEMENT: 3-5s</div>
           </motion.div>
         </div>
       </div>
