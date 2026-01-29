@@ -37,21 +37,6 @@ export default function Home() {
   const digitalTokens = auditData?.digitalTokens || 0;
   const currentSatoshi = auditData?.currentUtxo || 'SAT-INIT';
 
-  // Load recent transactions into logs
-  useEffect(() => {
-    if (auditData?.recentTransactions) {
-      const txLogs = auditData.recentTransactions.slice(0, 10).map(tx => ({
-        time: new Date(tx.created_date).toLocaleTimeString('en-US', { hour12: false }),
-        type: tx.type,
-        message: `${tx.type === 'MINT' ? 'Bound' : 'Transferred'} ${tx.amount_grams || 0}g | UTXO: ${tx.satoshi_utxo || 'N/A'}`
-      }));
-      
-      if (txLogs.length > 0 && logs.length === 2) {
-        setLogs(prev => [...prev, ...txLogs]);
-      }
-    }
-  }, [auditData]);
-
   const addLog = useCallback((type, message) => {
     const time = new Date().toLocaleTimeString('en-US', { hour12: false });
     setLogs(prev => [...prev, { time, type, message }]);
