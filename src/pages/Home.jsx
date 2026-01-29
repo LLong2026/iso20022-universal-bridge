@@ -1,5 +1,7 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import LedgerLog from '@/components/console/LedgerLog';
 import FractalBinding from '@/components/console/FractalBinding';
 import IsoBridge from '@/components/console/IsoBridge';
@@ -8,35 +10,95 @@ import AuditDashboard from '@/components/console/AuditDashboard';
 import StatusBadge from '@/components/console/StatusBadge';
 
 export default function Home() {
+  const queryClient = useQueryClient();
   const [logs, setLogs] = useState([
     { time: 'SYSTEM', type: 'INIT', message: 'KERNEL LOADED. RUST ENVIRONMENT ACTIVE.' },
     { time: 'SYSTEM', type: 'SECURE', message: 'AIR-GAP ESTABLISHED.' }
   ]);
-  const [physicalGold, setPhysicalGold] = useState(0);
-  const [digitalTokens, setDigitalTokens] = useState(0);
   const [lastHash, setLastHash] = useState(null);
   const [lastTransaction, setLastTransaction] = useState(null);
   const [isCorrupted, setIsCorrupted] = useState(false);
   const [repairProgress, setRepairProgress] = useState(null);
-  const [currentSatoshi, setCurrentSatoshi] = useState('SAT-992834');
   const savedTokensRef = useRef(0);
+
+  // Fetch real audit data
+  const { data: auditData, isLoading } = useQuery({
+    queryKey: ['auditData'],
+    queryFn: async () => {
+      const { data } = await base44.functions.invoke('getAuditData', {});
+      return data;
+    },
+    refetchInterval: 5000,
+    initialData: { physicalGold: 0, digitalTokens: 0, currentUtxo: 'SAT-INIT', recentTransactions: [] }
+  });
+
+  const physicalGold = auditData?.physicalGold || 0;
+  const digitalTokens = auditData?.digitalTokens || 0;
+  const currentSatoshi = auditData?.currentUtxo || 'SAT-INIT';
+
+  // Load recent transactions into logs
+  useEffect(() => {
+    if (auditData?.recentTransactions) {
+      const txLogs = auditData.recentTransactions.slice(0, 10).map(tx => ({
+        time: new Date(tx.created_date).toLocaleTimeString('en-US', { hour12: false }),
+        type: tx.type,
+        message: `${tx.type === 'MINT' ? 'Bound' : 'Transferred'} ${tx.amount_grams || 0}g | UTXO: ${tx.satoshi_utxo || 'N/A'}`
+      }));
+      
+      if (txLogs.length > 0 && logs.length === 2) {
+        setLogs(prev => [...prev, ...txLogs]);
+      }
+    }
+  }, [auditData]);
 
   const addLog = useCallback((type, message) => {
     const time = new Date().toLocaleTimeString('en-US', { hour12: false });
     setLogs(prev => [...prev, { time, type, message }]);
   }, []);
 
+  const mintMutation = useMutation({
+    mutationFn: async ({ serial, weight }) => {
+      const { data } = await base44.functions.invoke('mintGold', {
+        serial_number: serial,
+        weight_grams: weight
+      });
+      return data;
+    },
+    onSuccess: (data) => {
+      setLastHash(data.bindingHash);
+      addLog('MINT', `SUCCESS: ${data.goldAsset.weight_grams}g BOUND TO ${data.utxoId}. HASH: ${data.bindingHash.substring(0, 16)}...`);
+      queryClient.invalidateQueries(['auditData']);
+    },
+    onError: (error) => {
+      addLog('ERR', `MINT FAILED: ${error.message}`);
+    }
+  });
+
   const handleMint = useCallback((serial, weight) => {
     addLog('INFO', `INITIATING FRACTAL BINDING FOR ${serial}...`);
-    
     setTimeout(() => {
-      const hash = "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-      setLastHash(hash);
-      setPhysicalGold(prev => prev + weight);
-      setDigitalTokens(prev => prev + weight);
-      addLog('MINT', `SUCCESS: ${weight}g BOUND TO SATOSHI. HASH: ${hash.substring(0, 16)}...`);
+      mintMutation.mutate({ serial, weight });
     }, 800);
-  }, [addLog]);
+  }, [addLog, mintMutation]);
+
+  const transferMutation = useMutation({
+    mutationFn: async ({ amount, sender, receiver }) => {
+      const { data } = await base44.functions.invoke('transferViaXRP', {
+        amount_grams: amount,
+        sender,
+        receiver
+      });
+      return data;
+    },
+    onSuccess: (data) => {
+      addLog('BRIDGE', `XRP SETTLEMENT COMPLETE VIA ${data.usedUtxo} | TIME: ${data.settlementTimeMs}ms`);
+      addLog('INFO', `QUEUING NEXT UTXO: ${data.nextUtxo}`);
+      queryClient.invalidateQueries(['auditData']);
+    },
+    onError: (error) => {
+      addLog('ERR', `TRANSFER FAILED: ${error.message}`);
+    }
+  });
 
   const handleTransfer = useCallback(() => {
     if (digitalTokens <= 0) {
@@ -45,12 +107,12 @@ export default function Home() {
     }
 
     const amt = Math.min(50, digitalTokens);
-    const txId = "LSL-" + Math.floor(Math.random() * 999999);
     const sender = "TREASURY_WALLET_01";
     const receiver = "FED_RESERVE_BANK";
 
     addLog('TX', `INITIATING TRANSFER: ${amt}g -> ${receiver} | SATOSHI: ${currentSatoshi}`);
 
+    const txId = "LSL-" + Math.floor(Math.random() * 999999);
     setLastTransaction({
       txId,
       amount: amt,
@@ -59,21 +121,25 @@ export default function Home() {
       timestamp: new Date().toISOString()
     });
 
-    setTimeout(() => {
-      addLog('BRIDGE', `XRP SETTLEMENT COMPLETE VIA ${currentSatoshi}`);
-      
-      // Queue next satoshi
-      const newSatoshi = 'SAT-' + Math.floor(Math.random() * 999999);
-      setCurrentSatoshi(newSatoshi);
-      addLog('INFO', `QUEUING NEXT UTXO: ${newSatoshi}`);
-    }, 3200);
-  }, [digitalTokens, currentSatoshi, addLog]);
+    transferMutation.mutate({ amount: amt, sender, receiver });
+  }, [digitalTokens, currentSatoshi, addLog, transferMutation]);
+
+  const corruptMutation = useMutation({
+    mutationFn: async () => {
+      const { data } = await base44.functions.invoke('simulateCorruption', {});
+      return data;
+    },
+    onSuccess: (data) => {
+      setIsCorrupted(false);
+      setRepairProgress(null);
+      addLog('FIX', `KOLMOGOROV SYNTHESIS COMPLETE. RESTORED: ${data.reconstructedGold}g`);
+      queryClient.invalidateQueries(['auditData']);
+    }
+  });
 
   const handleCorrupt = useCallback(() => {
     addLog('ERR', 'CRITICAL ALERT: SECTOR 7 CORRUPTION DETECTED.');
     setIsCorrupted(true);
-    savedTokensRef.current = digitalTokens;
-    setDigitalTokens(0);
 
     setTimeout(() => {
       addLog('FIX', 'ENGAGING TOPOLOGICAL RESONANCE ENGINE...');
@@ -85,14 +151,11 @@ export default function Home() {
 
         if (step >= 10) {
           clearInterval(interval);
-          setDigitalTokens(savedTokensRef.current);
-          setIsCorrupted(false);
-          setRepairProgress(null);
-          addLog('FIX', 'KOLMOGOROV SYNTHESIS COMPLETE. LEDGER RESTORED.');
+          corruptMutation.mutate();
         }
       }, 200);
     }, 1500);
-  }, [digitalTokens, addLog]);
+  }, [addLog, corruptMutation]);
 
   const solvencyPercent = physicalGold > 0 
     ? Math.round((digitalTokens / physicalGold) * 100) 
