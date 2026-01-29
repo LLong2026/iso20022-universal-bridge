@@ -18,6 +18,7 @@ export default function Home() {
   const [lastTransaction, setLastTransaction] = useState(null);
   const [isCorrupted, setIsCorrupted] = useState(false);
   const [repairProgress, setRepairProgress] = useState(null);
+  const [currentSatoshi, setCurrentSatoshi] = useState('SAT-992834');
   const savedTokensRef = useRef(0);
 
   const addLog = useCallback((type, message) => {
@@ -48,7 +49,7 @@ export default function Home() {
     const sender = "TREASURY_WALLET_01";
     const receiver = "FED_RESERVE_BANK";
 
-    addLog('TX', `INITIATING TRANSFER: ${amt}g -> ${receiver}`);
+    addLog('TX', `INITIATING TRANSFER: ${amt}g -> ${receiver} | SATOSHI: ${currentSatoshi}`);
 
     setLastTransaction({
       txId,
@@ -59,9 +60,14 @@ export default function Home() {
     });
 
     setTimeout(() => {
-      addLog('BRIDGE', 'HOMOMORPHIC MAPPING COMPLETE. SENT TO FEDWIRE.');
-    }, 1500);
-  }, [digitalTokens, addLog]);
+      addLog('BRIDGE', `XRP SETTLEMENT COMPLETE VIA ${currentSatoshi}`);
+      
+      // Queue next satoshi
+      const newSatoshi = 'SAT-' + Math.floor(Math.random() * 999999);
+      setCurrentSatoshi(newSatoshi);
+      addLog('INFO', `QUEUING NEXT UTXO: ${newSatoshi}`);
+    }, 3200);
+  }, [digitalTokens, currentSatoshi, addLog]);
 
   const handleCorrupt = useCallback(() => {
     addLog('ERR', 'CRITICAL ALERT: SECTOR 7 CORRUPTION DETECTED.');
@@ -169,6 +175,7 @@ export default function Home() {
           <AuditDashboard 
             physicalGold={physicalGold}
             digitalTokens={digitalTokens}
+            currentSatoshi={currentSatoshi}
           />
         </motion.div>
       </div>

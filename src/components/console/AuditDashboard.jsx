@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import Panel from './Panel';
 import { Scale, Coins, Database, Radar } from 'lucide-react';
 
-export default function AuditDashboard({ physicalGold, digitalTokens }) {
+export default function AuditDashboard({ physicalGold, digitalTokens, currentSatoshi }) {
   const isSolvent = physicalGold === digitalTokens;
   const ratio = physicalGold > 0 ? (digitalTokens / physicalGold) : 1;
 
@@ -86,7 +86,14 @@ export default function AuditDashboard({ physicalGold, digitalTokens }) {
             transition={{ duration: 2, repeat: Infinity }}
           >
             <div className="text-blue-400">⚡ XRPL NODE: SYNCED</div>
-            <div className="text-[#d4af37]">TARGET: SAT-992834... (READY)</div>
+            <motion.div 
+              key={currentSatoshi}
+              initial={{ x: -10, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              className="text-[#d4af37] font-bold"
+            >
+              QUEUED: {currentSatoshi}... (READY)
+            </motion.div>
             <div className="text-green-400">SETTLEMENT: 3-5s</div>
           </motion.div>
         </div>
