@@ -10,6 +10,7 @@ import AuditDashboard from '@/components/console/AuditDashboard';
 import StatusBadge from '@/components/console/StatusBadge';
 import SovereignValidator from '@/components/console/SovereignValidator';
 import GlobalUplink from '@/components/console/GlobalUplink';
+import RFITrigger from '@/components/console/RFITrigger';
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -244,6 +245,15 @@ export default function Home() {
           transition={{ delay: 0.7 }}
         >
           <GlobalUplink />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.8 }}
+          className="lg:col-span-3"
+        >
+          <RFITrigger />
         </motion.div>
       </div>
     </div>
