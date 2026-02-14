@@ -46,11 +46,11 @@ export default function Home() {
 
   const mintMutation = useMutation({
     mutationFn: async ({ serial, weight }) => {
-      const { data } = await base44.functions.invoke('mintGold', {
+      const response = await base44.functions.invoke('mintGold', {
         serial_number: serial,
         weight_grams: weight
       });
-      return data;
+      return response.data;
     },
     onSuccess: (data) => {
       setLastHash(data.bindingHash);
@@ -114,8 +114,8 @@ export default function Home() {
 
   const corruptMutation = useMutation({
     mutationFn: async () => {
-      const { data } = await base44.functions.invoke('simulateCorruption', {});
-      return data;
+      const response = await base44.functions.invoke('simulateCorruption', {});
+      return response.data;
     },
     onSuccess: (data) => {
       setIsCorrupted(false);
