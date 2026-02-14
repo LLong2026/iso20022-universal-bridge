@@ -71,12 +71,12 @@ export default function Home() {
 
   const transferMutation = useMutation({
     mutationFn: async ({ amount, sender, receiver }) => {
-      const { data } = await base44.functions.invoke('transferViaXRP', {
+      const response = await base44.functions.invoke('transferViaXRP', {
         amount_grams: amount,
         sender,
         receiver
       });
-      return data;
+      return response.data;
     },
     onSuccess: (data) => {
       addLog('BRIDGE', `XRP SETTLEMENT COMPLETE VIA ${data.usedUtxo} | TIME: ${data.settlementTimeMs}ms`);
