@@ -3,14 +3,15 @@ import { createHash } from 'node:crypto';
 
 Deno.serve(async (req) => {
   try {
+    const body = await req.json();
+    const { serial_number, weight_grams } = body;
+    
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const { serial_number, weight_grams } = await req.json();
 
     if (!serial_number || !weight_grams) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
