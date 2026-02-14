@@ -48,7 +48,7 @@ export default function Home() {
     mutationFn: async ({ serial, weight }) => {
       const response = await base44.functions.invoke('mintGold', {
         serial_number: serial,
-        weight_grams: weight
+        weight_grams: Number(weight)
       });
       return response.data;
     },
@@ -58,7 +58,8 @@ export default function Home() {
       queryClient.invalidateQueries(['auditData']);
     },
     onError: (error) => {
-      addLog('ERR', `MINT FAILED: ${error.message}`);
+      console.error('Mint error:', error);
+      addLog('ERR', `MINT FAILED: ${error.response?.data?.error || error.message}`);
     }
   });
 
