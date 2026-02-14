@@ -57,11 +57,14 @@ export default function FractalBinding({ onMint, lastHash }) {
   const handleMint = () => {
     if (!serial || !weight) return;
     
+    const weightNum = parseFloat(weight);
+    if (isNaN(weightNum) || weightNum <= 0) return;
+    
     setIsBinding(true);
     drawSpongeEffect();
     
     setTimeout(() => {
-      onMint(serial, parseFloat(weight));
+      onMint(serial, weightNum);
       setIsBinding(false);
     }, 800);
   };
