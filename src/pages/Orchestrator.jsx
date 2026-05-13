@@ -93,7 +93,7 @@ export default function Orchestrator() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050510] text-gray-100 font-mono flex flex-col">
+    <div className="h-screen bg-[#050510] text-gray-100 font-mono flex flex-col overflow-hidden">
       {/* Header */}
       <div className="border-b border-purple-900/40 px-6 py-3 flex items-center justify-between bg-[#08081a] shrink-0">
         <div>
