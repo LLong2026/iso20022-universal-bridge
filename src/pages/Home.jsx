@@ -10,6 +10,7 @@ import AuditDashboard from '@/components/console/AuditDashboard';
 import StatusBadge from '@/components/console/StatusBadge';
 import SovereignValidator from '@/components/console/SovereignValidator';
 import GlobalUplink from '@/components/console/GlobalUplink';
+import { Link } from 'react-router-dom';
 
 
 export default function Home() {
@@ -165,6 +166,9 @@ export default function Home() {
           </h1>
         </div>
         <div className="flex gap-3 flex-wrap">
+          <Link to="/orchestrator">
+            <StatusBadge label="AI AGENTS" value="ORCHESTRATOR →" variant="warning" />
+          </Link>
           <StatusBadge label="AIR-GAP" value="ACTIVE" variant="success" />
           <StatusBadge 
             label="SOLVENCY" 
