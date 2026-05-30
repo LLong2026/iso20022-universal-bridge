@@ -50,3 +50,4 @@ Built on a Rust core with an air‑gapped execution model, the system illustrate
 • self‑healing topological resonance engine
 
 This demonstration is provided for research, education, and non‑commercial evaluation. It represents a working prototype of the underlying method and is not a financial product or service.
+Licensed under CC BY‑NC‑ND 4.0. This repository contains a patent‑pending demonstration and is not licensed for commercial use.
