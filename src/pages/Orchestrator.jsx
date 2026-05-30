@@ -98,7 +98,7 @@ export default function Orchestrator() {
       <div className="border-b border-purple-900/40 px-6 py-3 flex items-center justify-between bg-[#08081a] shrink-0">
         <div>
           <h1 className="text-base font-bold tracking-[0.2em] text-purple-300 uppercase">Agentic Orchestration Layer</h1>
-          <p className="text-[10px] text-gray-500 tracking-widest">LONE STAR LEDGER — AI COMMAND MESH</p>
+          <p className="text-[10px] text-gray-500 tracking-widest">ISO20022 XRP DEMONSTRATION — AI COMMAND MESH</p>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-xs text-gray-400">{AGENTS.length} AGENTS</span>
