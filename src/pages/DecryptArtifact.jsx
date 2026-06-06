@@ -34,6 +34,17 @@ export default function DecryptArtifact() {
   const [importInput, setImportInput] = useState('');
   const [importError, setImportError] = useState(null);
 
+  // Re-sync DID from localStorage whenever tab gains focus or storage changes
+  useEffect(() => {
+    const sync = () => {
+      const fresh = getStored(DID_KEY);
+      if (fresh) setDidRecord(fresh);
+    };
+    window.addEventListener('focus', sync);
+    window.addEventListener('storage', sync);
+    return () => { window.removeEventListener('focus', sync); window.removeEventListener('storage', sync); };
+  }, []);
+
   const handleImportDid = () => {
     setImportError(null);
     try {
@@ -144,9 +155,17 @@ export default function DecryptArtifact() {
         didRecord ? 'border-green-900/50 bg-green-950/10 text-green-400' : 'border-red-900/50 bg-red-950/10 text-red-400'
       }`}>
         <div className="flex items-center gap-2">
-          {didRecord
-            ? <><ShieldCheck className="w-3 h-3 flex-shrink-0" />DID ACTIVE: {didRecord.did.slice(0, 32)}...</>
-            : <><AlertTriangle className="w-3 h-3 flex-shrink-0" />NO DID — generate on main console or import receipt below.</>}
+          <span className="flex-1">
+            {didRecord
+              ? <><ShieldCheck className="w-3 h-3 inline mr-1 flex-shrink-0" />DID ACTIVE: {didRecord.did.slice(0, 32)}...</>
+              : <><AlertTriangle className="w-3 h-3 inline mr-1 flex-shrink-0" />NO DID — generate on main console or import receipt below.</>}
+          </span>
+          {!didRecord && (
+            <button onClick={() => { const f = getStored(DID_KEY); if (f) setDidRecord(f); }}
+              className="text-[8px] text-gray-600 hover:text-[#d4af37] border border-[#333] px-2 py-0.5 rounded transition-colors ml-2 flex-shrink-0">
+              <RefreshCw className="w-2.5 h-2.5 inline mr-0.5" />RELOAD
+            </button>
+          )}
         </div>
         {!didRecord && (
           <div className="mt-3 space-y-2">
