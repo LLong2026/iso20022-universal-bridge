@@ -5,9 +5,10 @@ import Panel from '@/components/console/Panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
+
 import {
   Search, Download, Lock, Unlock, CheckCircle, AlertTriangle,
-  Loader, Copy, ArrowLeft, FileText, Hash, ShieldCheck, List, Upload
+  Loader, Copy, ArrowLeft, FileText, Hash, ShieldCheck, List, Upload, KeySquare
 } from 'lucide-react';
 
 const DID_KEY = 'rwa_did_record';
@@ -27,7 +28,7 @@ export default function VaultRetrieve() {
   const [listLoading, setListLoading] = useState(false);
   // ingest form
   const [ingestForm, setIngestForm] = useState({
-    asset_type: 'gold_bar', weight: '', purity: '999.9', description: '', vault_location: '', satoshi_anchor: ''
+    asset_type: 'gold_bar', weight: '', purity: '999.9', description: '', vault_location: '', satoshi_anchor: '', xrp_destination: ''
   });
   const [ingestResult, setIngestResult] = useState(null);
   const [ingestLoading, setIngestLoading] = useState(false);
@@ -90,6 +91,7 @@ export default function VaultRetrieve() {
         description: ingestForm.description || null,
         vault_location: ingestForm.vault_location || null,
         satoshi_anchor: ingestForm.satoshi_anchor || null,
+        xrp_destination: ingestForm.xrp_destination || null,
       };
       const { data } = await base44.functions.invoke('rwaDataService', {
         action: 'full_ingest',
@@ -103,6 +105,11 @@ export default function VaultRetrieve() {
         localStorage.setItem('jasper_encrypted_package', JSON.stringify(data.encrypted_package));
       }
       setIngestResult(data);
+      // Auto-refresh asset list so new asset is immediately visible
+      try {
+        const listRes = await base44.functions.invoke('rwaDataService', { action: 'list', owner_did: didRecord.did });
+        setMyAssets(listRes.data.assets || []);
+      } catch {}
     } catch (err) {
       setError(err?.response?.data?.error || err.message || 'INGEST FAILED');
     } finally { setIngestLoading(false); }
@@ -308,6 +315,14 @@ export default function VaultRetrieve() {
                           className="h-6 text-[8px] border-[#333] text-gray-400 hover:text-[#d4af37] hover:border-[#d4af37] px-2">
                           RETRIEVE
                         </Button>
+                        {asset.is_encrypted && (
+                          <Link to="/decrypt">
+                            <Button size="sm"
+                              className="h-6 text-[8px] bg-[#d4af37] hover:bg-[#b8962f] text-black font-bold px-2">
+                              <KeySquare className="w-2.5 h-2.5 mr-0.5" />DECRYPT
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </motion.div>
                   ))}
@@ -338,6 +353,7 @@ export default function VaultRetrieve() {
                   { label: 'VAULT LOCATION', key: 'vault_location', placeholder: 'VAULT-A1, ZURICH' },
                   { label: 'SATOSHI ANCHOR', key: 'satoshi_anchor', placeholder: 'SAT-...' },
                   { label: 'DESCRIPTION', key: 'description', placeholder: 'e.g. 1kg Swiss PAMP bar' },
+                  { label: 'XRP DESTINATION ADDRESS', key: 'xrp_destination', placeholder: 'rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX (payment rail endpoint)' },
                 ].map(({ label, key, placeholder }) => (
                   <div key={key}>
                     <label className="block text-[9px] text-gray-500 mb-1 tracking-widest">{label}</label>
@@ -382,6 +398,7 @@ export default function VaultRetrieve() {
                         ['PIPELINE', ingestResult.pipeline],
                         ['ENCRYPTED', ingestResult.encrypted ? 'YES (JASPER AES-256)' : 'NO'],
                         ['SIGNED', ingestResult.signature ? 'YES (Ed25519)' : 'NO'],
+                        ['XRP ENDPOINT', ingestForm.xrp_destination || '(none specified)'],
                       ].map(([k, v]) => (
                         <div key={k} className="border-t border-[#1a1a1a] pt-1">
                           <div className="text-[8px] text-gray-600">{k}</div>
@@ -396,11 +413,22 @@ export default function VaultRetrieve() {
                         <div className="text-[8px] text-gray-600">BLOCK HASH</div>
                         <div className="text-[9px] text-[#d4af37] break-all">{ingestResult.block_hash}</div>
                       </div>
-                      <Button size="sm" variant="outline"
-                        onClick={() => { setTab('retrieve'); setAssetId(ingestResult.asset_id); }}
-                        className="w-full h-7 text-[9px] border-[#333] text-gray-400 hover:text-[#d4af37] hover:border-[#d4af37] mt-2">
-                        → RETRIEVE THIS ASSET
-                      </Button>
+                      <div className="flex gap-2 mt-2">
+                        <Button size="sm" variant="outline"
+                          onClick={() => { setTab('retrieve'); setAssetId(ingestResult.asset_id); }}
+                          className="flex-1 h-7 text-[9px] border-[#333] text-gray-400 hover:text-[#d4af37] hover:border-[#d4af37]">
+                          → RETRIEVE
+                        </Button>
+                        <Link to="/decrypt">
+                          <Button size="sm"
+                            className="flex-1 h-7 text-[9px] bg-[#d4af37] hover:bg-[#b8962f] text-black font-bold px-3">
+                            <KeySquare className="w-3 h-3 mr-1" />DECRYPT NOW
+                          </Button>
+                        </Link>
+                      </div>
+                      <div className="mt-2 border border-green-900/40 bg-green-950/10 p-2 rounded text-[8px] text-green-400 leading-relaxed">
+                        ✓ JASPER PACKAGE SAVED LOCALLY — navigate to DECRYPT to unlock contents with your DID.
+                      </div>
                     </div>
                   </Panel>
                 </motion.div>
