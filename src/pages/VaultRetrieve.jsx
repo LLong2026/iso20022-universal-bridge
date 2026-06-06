@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import {
   Search, Download, Lock, Unlock, CheckCircle, AlertTriangle,
-  Loader, Copy, ArrowLeft, FileText, Hash, ShieldCheck, List
+  Loader, Copy, ArrowLeft, FileText, Hash, ShieldCheck, List, Upload
 } from 'lucide-react';
 
 const DID_KEY = 'rwa_did_record';
@@ -32,7 +32,22 @@ export default function VaultRetrieve() {
   const [ingestResult, setIngestResult] = useState(null);
   const [ingestLoading, setIngestLoading] = useState(false);
 
-  const didRecord = getStoredDid();
+  const [didRecord, setDidRecord] = useState(getStoredDid());
+  const [importInput, setImportInput] = useState('');
+  const [importError, setImportError] = useState(null);
+
+  const handleImportDid = () => {
+    setImportError(null);
+    try {
+      const parsed = JSON.parse(importInput.trim());
+      if (!parsed.did || !parsed.private_key_jwk) throw new Error('Missing did or private_key_jwk');
+      localStorage.setItem(DID_KEY, JSON.stringify(parsed));
+      setDidRecord(parsed);
+      setImportInput('');
+    } catch (e) {
+      setImportError('INVALID DID RECEIPT — paste the full JSON receipt.');
+    }
+  };
 
   const handleRetrieve = async () => {
     if (!assetId.trim()) { setError('ENTER AN ASSET ID'); return; }
@@ -122,13 +137,29 @@ export default function VaultRetrieve() {
       </div>
 
       {/* DID Status bar */}
-      <div className={`mb-6 border px-3 py-2 rounded flex items-center gap-2 text-[10px] tracking-wider ${
+      <div className={`mb-4 border px-3 py-2 rounded text-[10px] tracking-wider ${
         didRecord ? 'border-green-900/50 bg-green-950/10 text-green-400' : 'border-yellow-900/50 bg-yellow-950/10 text-yellow-500'
       }`}>
-        {didRecord ? <ShieldCheck className="w-3 h-3 flex-shrink-0" /> : <AlertTriangle className="w-3 h-3 flex-shrink-0" />}
-        {didRecord
-          ? `DID ACTIVE: ${didRecord.did.slice(0, 28)}...`
-          : 'NO DID LOADED — go to main console and generate a DID identity first.'}
+        <div className="flex items-center gap-2">
+          {didRecord ? <ShieldCheck className="w-3 h-3 flex-shrink-0" /> : <AlertTriangle className="w-3 h-3 flex-shrink-0" />}
+          {didRecord
+            ? `DID ACTIVE: ${didRecord.did.slice(0, 28)}...`
+            : 'NO DID LOADED — generate one on main console or import a receipt below.'}
+        </div>
+        {!didRecord && (
+          <div className="mt-2 flex gap-1">
+            <Input
+              value={importInput}
+              onChange={e => setImportInput(e.target.value)}
+              placeholder='Paste DID receipt JSON...'
+              className="bg-black border-[#444] text-[9px] text-gray-300 font-mono h-7 flex-1"
+            />
+            <Button onClick={handleImportDid} className="h-7 px-2 bg-[#d4af37] hover:bg-[#b8962f] text-black text-[8px]">
+              <Upload className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
+        {importError && <div className="text-[8px] text-red-400 mt-1">{importError}</div>}
       </div>
 
       {/* Tabs */}

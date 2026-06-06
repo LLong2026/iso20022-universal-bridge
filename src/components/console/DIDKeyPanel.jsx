@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import Panel from './Panel';
 import { Button } from '@/components/ui/button';
-import { KeyRound, Eye, EyeOff, RefreshCw, CheckCircle, Loader, Copy } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { KeyRound, Eye, EyeOff, RefreshCw, CheckCircle, Loader, Copy, Download, Upload } from 'lucide-react';
 
 const STORAGE_KEY = 'rwa_did_record';
 
@@ -14,6 +15,8 @@ export default function DIDKeyPanel() {
   const [didDoc, setDidDoc] = useState(null);
   const [copied, setCopied] = useState(false);
   const [resolving, setResolving] = useState(false);
+  const [importInput, setImportInput] = useState('');
+  const [importError, setImportError] = useState(null);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -159,10 +162,62 @@ export default function DIDKeyPanel() {
           )}
         </AnimatePresence>
 
-        {/* Key info note */}
+        {/* Export receipt */}
         {didRecord && (
-          <div className="text-[8px] text-gray-600 border-t border-[#1a1a1a] pt-2 leading-relaxed">
-            ⚠ PRIVATE KEY STORED IN BROWSER LOCAL STORAGE. FOR DEMO ONLY — USE HSM IN PRODUCTION.
+          <div className="space-y-2 border-t border-[#1a1a1a] pt-2">
+            <div className="flex gap-2">
+              <Button
+                onClick={() => handleCopy(JSON.stringify(didRecord, null, 2))}
+                variant="outline"
+                className="flex-1 h-7 text-[8px] border-[#333] text-gray-400 hover:text-[#d4af37] hover:border-[#d4af37] tracking-widest"
+              >
+                {copied ? <CheckCircle className="w-3 h-3 mr-1 text-green-400" /> : <Copy className="w-3 h-3 mr-1" />}
+                COPY RECEIPT
+              </Button>
+              <Button
+                onClick={() => {
+                  const blob = new Blob([JSON.stringify(didRecord, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url; a.download = `did-receipt-${Date.now()}.json`; a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                variant="outline"
+                className="flex-1 h-7 text-[8px] border-[#333] text-gray-400 hover:text-[#d4af37] hover:border-[#d4af37] tracking-widest"
+              >
+                <Download className="w-3 h-3 mr-1" />DOWNLOAD
+              </Button>
+            </div>
+
+            {/* Import DID */}
+            <div className="space-y-1">
+              <div className="text-[8px] text-gray-600 tracking-widest">IMPORT DID RECEIPT</div>
+              <div className="flex gap-1">
+                <Input
+                  value={importInput}
+                  onChange={e => setImportInput(e.target.value)}
+                  placeholder='{"did":"did:key:...","private_key_jwk":{...}}'
+                  className="bg-black border-[#333] text-[9px] text-gray-400 font-mono h-7 flex-1"
+                />
+                <Button onClick={() => {
+                  setImportError(null);
+                  try {
+                    const parsed = JSON.parse(importInput.trim());
+                    if (!parsed.did || !parsed.private_key_jwk) throw new Error();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+                    setDidRecord(parsed);
+                    setImportInput('');
+                  } catch { setImportError('INVALID RECEIPT'); }
+                }} className="h-7 px-2 bg-[#d4af37] hover:bg-[#b8962f] text-black text-[8px]">
+                  <Upload className="w-3 h-3" />
+                </Button>
+              </div>
+              {importError && <div className="text-[8px] text-red-400">{importError}</div>}
+            </div>
+
+            <div className="text-[8px] text-gray-600 leading-relaxed">
+              ⚠ PRIVATE KEY IN LOCAL STORAGE. DEMO ONLY — USE HSM IN PRODUCTION.
+            </div>
           </div>
         )}
       </div>
