@@ -11,6 +11,8 @@ import DecryptArtifact from './pages/DecryptArtifact';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import NavBar from '@/components/console/NavBar';
+import Argis from './pages/Argis';
+import ArgisNavLink from '@/components/argis/ArgisNavLink';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -66,9 +68,11 @@ const AuthenticatedApp = () => {
       <Route path="/orchestrator" element={<Orchestrator />} />
       <Route path="/vault" element={<VaultRetrieve />} />
       <Route path="/decrypt" element={<DecryptArtifact />} />
+      <Route path="/argis" element={<Argis />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <NavBar />
+    <ArgisNavLink />
     </>
   );
 };
