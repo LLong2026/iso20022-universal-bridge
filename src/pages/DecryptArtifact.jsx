@@ -149,16 +149,51 @@ export default function DecryptArtifact() {
             : <><AlertTriangle className="w-3 h-3 flex-shrink-0" />NO DID — generate on main console or import receipt below.</>}
         </div>
         {!didRecord && (
-          <div className="mt-2 flex gap-1">
-            <Input
-              value={importInput}
-              onChange={e => setImportInput(e.target.value)}
-              placeholder='Paste DID receipt JSON...'
-              className="bg-black border-[#444] text-[9px] text-gray-300 font-mono h-7 flex-1"
-            />
-            <Button onClick={handleImportDid} className="h-7 px-2 bg-[#d4af37] hover:bg-[#b8962f] text-black text-[8px]">
-              <Upload className="w-3 h-3" />
-            </Button>
+          <div className="mt-3 space-y-2">
+            {/* File upload */}
+            <div className="flex items-center gap-2">
+              <label className="flex-1 cursor-pointer">
+                <div className="border border-dashed border-[#555] rounded px-3 py-1.5 text-center text-[9px] text-gray-500 hover:border-[#d4af37] hover:text-[#d4af37] transition-colors">
+                  <Upload className="w-3 h-3 inline mr-1" />UPLOAD did-receipt-*.json FILE
+                </div>
+                <input type="file" accept=".json,application/json" className="hidden" onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = ev => {
+                    setImportError(null);
+                    try {
+                      const parsed = JSON.parse(ev.target.result);
+                      if (!parsed.did || !parsed.private_key_jwk) throw new Error();
+                      localStorage.setItem(DID_KEY, JSON.stringify(parsed));
+                      setDidRecord(parsed);
+                      setImportInput('');
+                    } catch { setImportError('INVALID FILE — must be a did-receipt JSON with "did" and "private_key_jwk" fields.'); }
+                  };
+                  reader.readAsText(file);
+                  e.target.value = '';
+                }} />
+              </label>
+            </div>
+
+            {/* Paste JSON */}
+            <div className="flex gap-1">
+              <Input
+                value={importInput}
+                onChange={e => setImportInput(e.target.value)}
+                placeholder='Or paste full JSON: {"did":"did:key:...","private_key_jwk":{...}}'
+                className="bg-black border-[#444] text-[9px] text-gray-300 font-mono h-7 flex-1"
+              />
+              <Button onClick={handleImportDid} className="h-7 px-2 bg-[#d4af37] hover:bg-[#b8962f] text-black text-[8px]">
+                <Upload className="w-3 h-3" />
+              </Button>
+            </div>
+
+            {/* Format hint */}
+            <div className="text-[8px] text-gray-700 leading-relaxed">
+              ⚠ The receipt is a <span className="text-gray-500">JSON object</span>, not a raw key.
+              Download it from the main console → DID Key Panel → <span className="text-gray-500">DOWNLOAD</span> button.
+            </div>
           </div>
         )}
         {importError && <div className="text-[8px] text-red-400 mt-1">{importError}</div>}
