@@ -1,0 +1,62 @@
+{
+  "name": "Transaction",
+  "type": "object",
+  "properties": {
+    "transaction_id": {
+      "type": "string"
+    },
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "asset_created",
+        "asset_transferred",
+        "asset_updated",
+        "asset_retired",
+        "block_mined"
+      ],
+      "default": "asset_created"
+    },
+    "asset_id": {
+      "type": "string"
+    },
+    "previous_hash": {
+      "type": "string"
+    },
+    "transaction_hash": {
+      "type": "string"
+    },
+    "merkle_root": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object"
+    },
+    "signature": {
+      "type": "string"
+    },
+    "signed_by": {
+      "type": "string",
+      "description": "DID of signer"
+    },
+    "block_height": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "confirmations": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "transaction_id",
+    "transaction_type"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "name": "AssetRecord",
+  "type": "object",
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "description": "Unique RWA asset identifier"
+    },
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "gold_bar",
+        "coin",
+        "bullion",
+        "certificate",
+        "deed",
+        "bond",
+        "commodity",
+        "digital_asset",
+        "other"
+      ],
+      "description": "Type of asset"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Weight in grams"
+    },
+    "purity": {
+      "type": "string",
+      "description": "Purity e.g. 999.9"
+    },
+    "owner_did": {
+      "type": "string",
+      "description": "DID of the asset owner"
+    },
+    "satoshi_anchor": {
+      "type": "string",
+      "description": "Satoshi UTXO this asset is anchored to"
+    },
+    "description": {
+      "type": "string"
+    },
+    "vault_location": {
+      "type": "string"
+    },
+    "is_encrypted": {
+      "type": "boolean",
+      "default": false
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "current_status": {
+      "type": "string",
+      "enum": [
+        "in_vault",
+        "in_transit",
+        "transferred",
+        "retired"
+      ],
+      "default": "in_vault"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "Supporting document URL"
+    }
+  },
+  "required": [
+    "asset_id",
+    "asset_type",
+    "owner_did"
+  ]
+}

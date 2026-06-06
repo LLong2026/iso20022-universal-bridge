@@ -1,0 +1,35 @@
+{
+  "name": "Block",
+  "type": "object",
+  "properties": {
+    "height": {
+      "type": "number",
+      "description": "Block height in the chain"
+    },
+    "block_hash": {
+      "type": "string"
+    },
+    "previous_hash": {
+      "type": "string"
+    },
+    "recall_hash": {
+      "type": "string"
+    },
+    "merkle_root": {
+      "type": "string"
+    },
+    "compliance_proof": {
+      "type": "string"
+    },
+    "node_name": {
+      "type": "string"
+    },
+    "uptime": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "height",
+    "block_hash"
+  ]
+}
