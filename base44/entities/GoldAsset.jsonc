@@ -1,0 +1,40 @@
+{
+  "name": "GoldAsset",
+  "type": "object",
+  "properties": {
+    "serial_number": {
+      "type": "string",
+      "description": "Unique serial number for the gold bar"
+    },
+    "weight_grams": {
+      "type": "number",
+      "description": "Weight in grams"
+    },
+    "binding_hash": {
+      "type": "string",
+      "description": "586-bit Sponge hash binding"
+    },
+    "satoshi_utxo": {
+      "type": "string",
+      "description": "Associated Satoshi UTXO"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "transferred",
+        "retired"
+      ],
+      "default": "active"
+    },
+    "mint_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "serial_number",
+    "weight_grams",
+    "binding_hash"
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "name": "AgentTask",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "analysis",
+        "generation",
+        "routing",
+        "optimization",
+        "scaling",
+        "audit",
+        "forecast",
+        "classification",
+        "synthesis",
+        "repair"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "dispatched",
+        "in_progress",
+        "completed",
+        "failed",
+        "rerouted"
+      ],
+      "default": "queued"
+    },
+    "assigned_agent_id": {
+      "type": "string"
+    },
+    "assigned_agent_name": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "input_data": {
+      "type": "string"
+    },
+    "output_data": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "cost_credits": {
+      "type": "number"
+    },
+    "reroute_count": {
+      "type": "number",
+      "default": 0
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "title",
+    "type"
+  ]
+}

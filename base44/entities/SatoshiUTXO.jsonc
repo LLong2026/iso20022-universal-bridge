@@ -1,0 +1,35 @@
+{
+  "name": "SatoshiUTXO",
+  "type": "object",
+  "properties": {
+    "utxo_id": {
+      "type": "string",
+      "description": "Satoshi UTXO identifier"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "active",
+        "used"
+      ],
+      "default": "queued"
+    },
+    "xrp_address": {
+      "type": "string",
+      "description": "Associated XRP address"
+    },
+    "bound_gold_weight": {
+      "type": "number",
+      "description": "Total gold bound to this UTXO"
+    },
+    "last_used": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "utxo_id",
+    "status"
+  ]
+}

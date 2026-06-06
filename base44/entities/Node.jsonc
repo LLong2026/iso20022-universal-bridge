@@ -1,0 +1,73 @@
+{
+  "name": "Node",
+  "type": "object",
+  "properties": {
+    "node_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "provisioning",
+        "draining",
+        "offline"
+      ],
+      "default": "online"
+    },
+    "cpu_percent": {
+      "type": "number"
+    },
+    "ram_percent": {
+      "type": "number"
+    },
+    "gpu_percent": {
+      "type": "number"
+    },
+    "active_agents": {
+      "type": "number"
+    },
+    "max_agents": {
+      "type": "number"
+    },
+    "task_queue_length": {
+      "type": "number"
+    },
+    "tasks_processed": {
+      "type": "number"
+    },
+    "uptime_hours": {
+      "type": "number"
+    },
+    "cost_per_hour": {
+      "type": "number"
+    },
+    "scaling_action": {
+      "type": "string",
+      "enum": [
+        "none",
+        "scale_up",
+        "scale_down",
+        "terminate"
+      ],
+      "default": "none"
+    },
+    "predicted_load_1h": {
+      "type": "number"
+    },
+    "predicted_load_6h": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "node_id",
+    "name",
+    "region"
+  ]
+}

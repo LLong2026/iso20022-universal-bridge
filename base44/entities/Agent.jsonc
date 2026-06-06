@@ -1,0 +1,92 @@
+{
+  "name": "Agent",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "master",
+        "orchestrator",
+        "domain",
+        "micro",
+        "sub",
+        "dispatcher",
+        "scaler",
+        "monitor"
+      ]
+    },
+    "domain": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "idle",
+        "overloaded",
+        "error",
+        "scaling",
+        "offline"
+      ],
+      "default": "idle"
+    },
+    "model": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "success_rate": {
+      "type": "number"
+    },
+    "avg_response_ms": {
+      "type": "number"
+    },
+    "cost_per_task": {
+      "type": "number"
+    },
+    "tasks_completed": {
+      "type": "number"
+    },
+    "tasks_failed": {
+      "type": "number"
+    },
+    "current_load": {
+      "type": "number"
+    },
+    "max_load": {
+      "type": "number"
+    },
+    "system_prompt": {
+      "type": "string"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "optimization_score": {
+      "type": "number"
+    },
+    "last_optimized": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "proposed_optimizations": {
+      "type": "string"
+    },
+    "auto_optimize": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "domain"
+  ]
+}

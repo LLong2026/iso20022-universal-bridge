@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import LedgerLog from '@/components/console/LedgerLog';
-import FractalBinding from '@/components/console/FractalBinding';
+import FractalBindingWrapper from '@/components/console/FractalBindingWrapper';
+import ArtifactUploader from '@/components/console/ArtifactUploader';
 import IsoBridge from '@/components/console/IsoBridge';
 import TopologicalResonance from '@/components/console/TopologicalResonance';
 import AuditDashboard from '@/components/console/AuditDashboard';
@@ -20,6 +21,7 @@ export default function Home() {
     { time: 'SYSTEM', type: 'SECURE', message: 'AIR-GAP ESTABLISHED.' }
   ]);
   const [lastHash, setLastHash] = useState(null);
+  const [injectedSerial, setInjectedSerial] = useState(null);
   const [lastTransaction, setLastTransaction] = useState(null);
   const [isCorrupted, setIsCorrupted] = useState(false);
   const [repairProgress, setRepairProgress] = useState(null);
@@ -179,14 +181,22 @@ export default function Home() {
       </motion.header>
 
       {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 flex-grow">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6 flex-grow">
         {/* Row 1 */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.05 }}
+        >
+          <ArtifactUploader onArtifactReady={(serial) => setInjectedSerial(serial)} />
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <FractalBinding onMint={handleMint} lastHash={lastHash} />
+          <FractalBindingWrapper onMint={handleMint} lastHash={lastHash} injectedSerial={injectedSerial} />
         </motion.div>
 
         <motion.div
@@ -196,6 +206,7 @@ export default function Home() {
           className="lg:col-span-2"
         >
           <LedgerLog logs={logs} />
+
         </motion.div>
 
         {/* Row 2 */}
@@ -240,7 +251,7 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6 }}
-          className="lg:col-span-2"
+          className="lg:col-span-3"
         >
           <SovereignValidator />
         </motion.div>

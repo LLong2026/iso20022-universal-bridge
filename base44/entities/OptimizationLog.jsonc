@@ -1,0 +1,55 @@
+{
+  "name": "OptimizationLog",
+  "type": "object",
+  "properties": {
+    "agent_id": {
+      "type": "string"
+    },
+    "agent_name": {
+      "type": "string"
+    },
+    "optimization_type": {
+      "type": "string",
+      "enum": [
+        "prompt",
+        "model",
+        "capability",
+        "routing",
+        "cost"
+      ]
+    },
+    "before_score": {
+      "type": "number"
+    },
+    "after_score": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    },
+    "proposed_change": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "approved",
+        "rejected",
+        "applied"
+      ],
+      "default": "proposed"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "impact_metric": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "agent_id",
+    "agent_name",
+    "optimization_type"
+  ]
+}

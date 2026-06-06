@@ -1,0 +1,55 @@
+{
+  "name": "Artifact",
+  "type": "object",
+  "properties": {
+    "serial_number": {
+      "type": "string",
+      "description": "Auto-generated archive serial number"
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": [
+        "gold_bar",
+        "coin",
+        "bullion",
+        "certificate",
+        "deed",
+        "bond",
+        "commodity",
+        "digital_asset",
+        "other"
+      ],
+      "description": "Type of physical or digital artifact"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "Uploaded artifact document or image URL"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Original uploaded file name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description or notes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "bound",
+        "archived"
+      ],
+      "default": "pending",
+      "description": "Binding status"
+    },
+    "bound_serial": {
+      "type": "string",
+      "description": "The GoldAsset serial this artifact was minted into"
+    }
+  },
+  "required": [
+    "serial_number",
+    "artifact_type"
+  ]
+}

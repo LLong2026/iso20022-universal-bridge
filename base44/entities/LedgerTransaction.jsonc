@@ -1,0 +1,59 @@
+{
+  "name": "LedgerTransaction",
+  "type": "object",
+  "properties": {
+    "transaction_id": {
+      "type": "string",
+      "description": "Unique transaction ID"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "MINT",
+        "TRANSFER",
+        "CORRUPTION",
+        "REPAIR"
+      ],
+      "description": "Transaction type"
+    },
+    "amount_grams": {
+      "type": "number",
+      "description": "Amount in grams"
+    },
+    "sender": {
+      "type": "string"
+    },
+    "receiver": {
+      "type": "string"
+    },
+    "satoshi_utxo": {
+      "type": "string"
+    },
+    "xrp_ledger_index": {
+      "type": "string",
+      "description": "XRP Ledger transaction hash"
+    },
+    "iso20022_xml": {
+      "type": "string",
+      "description": "ISO 20022 message"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "broadcasting",
+        "settled",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "settlement_time_ms": {
+      "type": "number",
+      "description": "Time to settle in milliseconds"
+    }
+  },
+  "required": [
+    "transaction_id",
+    "type"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "KnowledgeBase",
+  "type": "object",
+  "properties": {
+    "domain": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "relevance_score": {
+      "type": "number"
+    },
+    "source": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "domain",
+    "title",
+    "content"
+  ]
+}
