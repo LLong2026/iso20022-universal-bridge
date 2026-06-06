@@ -10,6 +10,7 @@ import VaultRetrieve from './pages/VaultRetrieve';
 import DecryptArtifact from './pages/DecryptArtifact';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import NavBar from '@/components/console/NavBar';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -44,6 +45,7 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
+    <>
     <Routes>
       <Route path="/" element={
         <LayoutWrapper currentPageName={mainPageKey}>
@@ -66,6 +68,8 @@ const AuthenticatedApp = () => {
       <Route path="/decrypt" element={<DecryptArtifact />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    <NavBar />
+    </>
   );
 };
 
