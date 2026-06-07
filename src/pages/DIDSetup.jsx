@@ -102,6 +102,15 @@ export default function DIDSetup() {
         </AnimatePresence>
 
         {/* Generate button */}
+        {didRecord && (
+          <div className="flex items-start gap-2 border border-yellow-900/50 bg-yellow-950/10 p-2 rounded mb-3">
+            <AlertTriangle className="w-3 h-3 text-yellow-500 flex-shrink-0 mt-0.5" />
+            <span className="text-[9px] text-yellow-500 leading-relaxed">
+              ⚠ ROTATING your keypair will generate a NEW DID. All assets currently assigned to your existing DID will no longer be accessible under this identity. Only rotate if you intend to start fresh.
+            </span>
+          </div>
+        )}
+
         <Button onClick={handleGenerate} disabled={loading}
           className="w-full bg-[#d4af37] hover:bg-[#b8962f] text-black font-bold uppercase tracking-wider h-11 mb-3">
           {loading
