@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Search, ArrowLeft, CheckCircle, AlertTriangle, Loader,
-  Copy, Hash, Download, FileText, RefreshCw, Link as LinkIcon
+  Copy, Hash, Download, FileText, RefreshCw, Link as LinkIcon,
+  KeySquare, ShieldCheck
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Real SHA-256 over file bytes → 32-byte (64 hex char) fingerprint
 async function computeFileHash(url) {
@@ -22,10 +23,12 @@ export default function Receipt() {
   const urlParams = new URLSearchParams(window.location.search);
   const initSerial = urlParams.get('serial') || '';
 
+  const navigate = useNavigate();
   const [serial, setSerial] = useState(initSerial);
   const [loading, setLoading] = useState(false);
   const [goldAsset, setGoldAsset] = useState(null);
   const [artifact, setArtifact] = useState(null);
+  const [assetRecord, setAssetRecord] = useState(null);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(null);
 
@@ -39,8 +42,7 @@ export default function Receipt() {
     if (initSerial) handleSearch(initSerial);
   }, []);
 
-  // Real-time subscription: if we have a serial and artifact is still pending/unbound,
-  // re-fetch whenever any Artifact record changes
+  // Real-time subscription: re-fetch whenever any Artifact record changes for our serial
   useEffect(() => {
     const s = serial.trim();
     if (!s) return;
@@ -71,21 +73,25 @@ export default function Receipt() {
     setError(null);
     setGoldAsset(null);
     setArtifact(null);
+    setAssetRecord(null);
     setFileHash(null);
     setHashError(null);
 
     try {
-      // Search GoldAsset by serial_number
-      const [goldResults, artifactResults] = await Promise.all([
+      // Search GoldAsset, Artifact, and AssetRecord all at once
+      const [goldResults, artifactResults, assetRecordResults] = await Promise.all([
         base44.entities.GoldAsset.filter({ serial_number: s }),
         base44.entities.Artifact.filter({ bound_serial: s }),
+        base44.entities.AssetRecord.filter({ asset_id: s }),
       ]);
 
       const gold = goldResults[0] || null;
       const art = artifactResults[0] || null;
+      const rec = assetRecordResults[0] || null;
 
       setGoldAsset(gold);
       setArtifact(art);
+      setAssetRecord(rec);
 
       if (!gold && !art) {
         setError('No record found for serial: ' + s);
@@ -233,6 +239,32 @@ export default function Receipt() {
                   <Row label="BOUND SERIAL" value={artifact.bound_serial} />
                   <Row label="FILE NAME" value={artifact.file_name} />
                   {artifact.description && <Row label="DESCRIPTION" value={artifact.description} mono={false} />}
+                </div>
+              )}
+
+              {/* AssetRecord decrypt shortcut */}
+              {assetRecord && (
+                <div className="border border-[#d4af37]/30 bg-black/70 rounded p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ShieldCheck className="w-4 h-4 text-[#d4af37]" />
+                    <span className="text-[10px] text-[#d4af37] tracking-widest font-bold">VAULT ASSET RECORD</span>
+                  </div>
+                  <Row label="ASSET ID" value={assetRecord.asset_id} />
+                  <Row label="TYPE" value={assetRecord.asset_type?.toUpperCase()} />
+                  <Row label="OWNER DID" value={assetRecord.owner_did ? assetRecord.owner_did.slice(0, 30) + '...' : null} />
+                  <Row label="STATUS" value={assetRecord.current_status?.toUpperCase()} />
+                  <Row label="ENCRYPTED" value={assetRecord.is_encrypted ? 'YES — JASPER AES-256' : 'NO'} />
+                  <div className="mt-3">
+                    <Button
+                      onClick={() => {
+                        sessionStorage.setItem('vault_asset_id', assetRecord.asset_id);
+                        navigate('/decrypt');
+                      }}
+                      className="w-full bg-[#d4af37] hover:bg-[#b8962f] text-black font-bold text-[9px] h-9"
+                    >
+                      <KeySquare className="w-3.5 h-3.5 mr-1" /> OPEN IN DECRYPT ENGINE
+                    </Button>
+                  </div>
                 </div>
               )}
 
