@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 const DID_KEY = 'rwa_did_record';
+const PKG_KEY = 'jasper_encrypted_package';
 function getStored(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
 }
@@ -62,6 +63,10 @@ export default function BindArtifact() {
         weight_grams: parseFloat(weight) || 0,
       });
       setResult(data);
+      // Store the encrypted package locally so the Decrypt Engine can use it
+      if (data.encrypted_package) {
+        localStorage.setItem(PKG_KEY, JSON.stringify(data.encrypted_package));
+      }
       // Refresh list
       await loadArtifacts();
     } catch (err) {
