@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 
+import { useNavigate } from 'react-router-dom';
 import {
   Search, Download, Lock, Unlock, CheckCircle, AlertTriangle,
   Loader, Copy, ArrowLeft, FileText, Hash, ShieldCheck, List, Upload, KeySquare
@@ -33,6 +34,7 @@ export default function VaultRetrieve() {
   const [ingestResult, setIngestResult] = useState(null);
   const [ingestLoading, setIngestLoading] = useState(false);
 
+  const navigate = useNavigate();
   const [didRecord, setDidRecord] = useState(getStoredDid());
   const [importInput, setImportInput] = useState('');
   const [importError, setImportError] = useState(null);
@@ -174,9 +176,13 @@ export default function VaultRetrieve() {
         {[
           { id: 'retrieve', label: 'RETRIEVE', icon: Search },
           { id: 'list', label: 'MY ASSETS', icon: List },
-          { id: 'ingest', label: 'FULL INGEST', icon: Download }
+          { id: 'ingest', label: 'FULL INGEST', icon: Download },
+          { id: 'serial', label: 'SERIAL LOOKUP', icon: Search }
         ].map(({ id, label, icon: TabIcon }) => (
-          <button key={id} onClick={() => { setTab(id); setError(null); setResult(null); }}
+          <button key={id} onClick={() => {
+              if (id === 'serial') { navigate('/serial-search'); return; }
+              setTab(id); setError(null); setResult(null);
+            }}
             className={`px-4 py-2 text-[10px] tracking-widest font-bold uppercase transition-colors flex items-center gap-1.5 ${
               tab === id ? 'bg-[#d4af37] text-black' : 'bg-black text-gray-500 hover:text-[#d4af37]'
             }`}>

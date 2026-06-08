@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 export default function SerialSearchLink() {
   const { pathname } = useLocation();
-  if (pathname === '/serial-search') return null;
+  if (pathname === '/serial-search' || pathname === '/vault') return null;
 
   // On the vault page, sit right next to the FULL INGEST tab
   const isVault = pathname === '/vault';
