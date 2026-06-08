@@ -39,6 +39,31 @@ export default function Receipt() {
     if (initSerial) handleSearch(initSerial);
   }, []);
 
+  // Real-time subscription: if we have a serial and artifact is still pending/unbound,
+  // re-fetch whenever any Artifact record changes
+  useEffect(() => {
+    const s = serial.trim();
+    if (!s) return;
+
+    const unsubscribe = base44.entities.Artifact.subscribe((event) => {
+      // Only refresh if the changed artifact is bound to our serial
+      const changedSerial = event.data?.bound_serial;
+      if (changedSerial === s || !artifact) {
+        base44.entities.Artifact.filter({ bound_serial: s }).then(results => {
+          const art = results[0] || null;
+          if (art && art.file_url && (!artifact || art.file_url !== artifact?.file_url)) {
+            setArtifact(art);
+            setFileHash(null);
+            setHashError(null);
+            computeHash(art.file_url);
+          }
+        }).catch(() => {});
+      }
+    });
+
+    return () => unsubscribe();
+  }, [serial, artifact]);
+
   const handleSearch = async (overrideSerial) => {
     const s = (overrideSerial || serial).trim();
     if (!s) return;
@@ -67,6 +92,21 @@ export default function Receipt() {
       } else if (art?.file_url) {
         // Auto-compute hash from file bytes
         computeHash(art.file_url);
+      } else if (gold && !art) {
+        // Gold found but artifact not yet bound — poll for up to 30s
+        let attempts = 0;
+        const poll = setInterval(async () => {
+          attempts++;
+          try {
+            const artResults = await base44.entities.Artifact.filter({ bound_serial: s });
+            if (artResults.length > 0) {
+              clearInterval(poll);
+              setArtifact(artResults[0]);
+              if (artResults[0].file_url) computeHash(artResults[0].file_url);
+            }
+          } catch {}
+          if (attempts >= 10) clearInterval(poll); // stop after 30s (10 × 3s)
+        }, 3000);
       }
     } catch (err) {
       setError(err.message || 'Search failed');
