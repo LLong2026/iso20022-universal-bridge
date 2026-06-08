@@ -15,11 +15,13 @@ import Argis from './pages/Argis';
 import ArgisNavLink from '@/components/argis/ArgisNavLink';
 import SerialSearchLink from '@/components/SerialSearchLink';
 import ReceiptNavLink from '@/components/ReceiptNavLink';
+import BindNavLink from '@/components/BindNavLink';
 import DIDSetup from './pages/DIDSetup';
 import SerialSearch from './pages/SerialSearch';
 import ArtifactViewer from './pages/ArtifactViewer';
 import Receipt from './pages/Receipt';
 import ClaimArtifacts from './pages/ClaimArtifacts';
+import BindArtifact from './pages/BindArtifact';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -81,12 +83,14 @@ const AuthenticatedApp = () => {
       <Route path="/artifact-viewer" element={<ArtifactViewer />} />
       <Route path="/receipt" element={<Receipt />} />
       <Route path="/claim-artifacts" element={<ClaimArtifacts />} />
+      <Route path="/bind" element={<BindArtifact />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <NavBar />
     <ArgisNavLink />
     <SerialSearchLink />
     <ReceiptNavLink />
+    <BindNavLink />
     </>
   );
 };
