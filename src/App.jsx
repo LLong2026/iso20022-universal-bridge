@@ -17,6 +17,7 @@ import SerialSearchLink from '@/components/SerialSearchLink';
 import DIDSetup from './pages/DIDSetup';
 import SerialSearch from './pages/SerialSearch';
 import ArtifactViewer from './pages/ArtifactViewer';
+import Receipt from './pages/Receipt';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
       <Route path="/did-setup" element={<DIDSetup />} />
       <Route path="/serial-search" element={<SerialSearch />} />
       <Route path="/artifact-viewer" element={<ArtifactViewer />} />
+      <Route path="/receipt" element={<Receipt />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <NavBar />
