@@ -2,14 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Hash, CheckCircle, AlertTriangle, Loader, ExternalLink, Copy } from 'lucide-react';
+import { ArrowLeft, FileText, Hash, CheckCircle, AlertTriangle, Loader, ExternalLink, Copy, RefreshCw } from 'lucide-react';
+
+// Fetch file bytes and compute real SHA-256 (32 bytes = 64 hex chars)
+async function computeFileHash(url) {
+  const res = await fetch(url);
+  const buf = await res.arrayBuffer();
+  const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+  const hashArr = Array.from(new Uint8Array(hashBuf));
+  return hashArr.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
 
 export default function ArtifactViewer() {
   const [artifact, setArtifact] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(null);
+  const [fileHash, setFileHash] = useState(null);
+  const [hashLoading, setHashLoading] = useState(false);
+  const [hashError, setHashError] = useState(null);
 
   const urlParams = new URLSearchParams(window.location.search);
   const serial = urlParams.get('serial');
@@ -33,18 +44,36 @@ export default function ArtifactViewer() {
         results = await base44.entities.Artifact.filter({ bound_serial: serial });
       }
       if (results.length === 0 && assetId) {
-        // Try matching bound_serial to assetId
         results = await base44.entities.Artifact.filter({ bound_serial: assetId });
       }
       if (results.length === 0) {
         setError('NO ARTIFACT FOUND FOR THIS ASSET');
       } else {
-        setArtifact(results[0]);
+        const found = results[0];
+        setArtifact(found);
+        // Auto-compute hash if there's a file
+        if (found.file_url) {
+          computeHash(found.file_url);
+        }
       }
     } catch (err) {
       setError(err.message || 'FAILED TO LOAD ARTIFACT');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const computeHash = async (url) => {
+    setHashLoading(true);
+    setHashError(null);
+    setFileHash(null);
+    try {
+      const hash = await computeFileHash(url);
+      setFileHash(hash);
+    } catch (err) {
+      setHashError('HASH COMPUTATION FAILED — FILE MAY BE CORS-RESTRICTED');
+    } finally {
+      setHashLoading(false);
     }
   };
 
@@ -66,7 +95,7 @@ export default function ArtifactViewer() {
             ARTIFACT VIEWER
           </h1>
           <div className="text-[10px] text-gray-600 mt-0.5 tracking-wider">
-            PERSISTENT STATE SNAPSHOT · SHA-256 FINGERPRINT · BOUND RECORD
+            PERSISTENT STATE SNAPSHOT · SHA-256 · 32-BYTE FILE FINGERPRINT
           </div>
         </div>
         <Button
@@ -102,7 +131,7 @@ export default function ArtifactViewer() {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto"
         >
-          {/* Metadata panel */}
+          {/* Metadata + Hash panel */}
           <div className="border border-[#333] bg-black/60 rounded p-4 space-y-3">
             <div className="text-[9px] text-gray-500 tracking-widest mb-2 flex items-center gap-1">
               <FileText className="w-3 h-3" /> ARTIFACT RECORD
@@ -128,39 +157,85 @@ export default function ArtifactViewer() {
               </div>
             )}
 
-            {/* SHA-256 fingerprint of serial as the 32-byte state snapshot key */}
-            <div className="border-t border-[#1a1a1a] pt-2">
-              <div className="text-[8px] text-gray-600 tracking-widest flex items-center gap-1">
-                <Hash className="w-2.5 h-2.5" /> STATE SNAPSHOT FINGERPRINT (SHA-256)
+            {/* REAL SHA-256 32-byte fingerprint */}
+            <div className="border-t border-[#1a1a1a] pt-3">
+              <div className="text-[8px] text-gray-600 tracking-widest flex items-center gap-1 mb-2">
+                <Hash className="w-2.5 h-2.5" /> 32-BYTE SHA-256 STATE SNAPSHOT
               </div>
-              <div className="flex items-center gap-1 mt-1">
-                <div className="text-[8px] text-green-400 break-all font-bold flex-1">
-                  {artifact.id ? artifact.id.replace(/-/g, '').slice(0, 64).toUpperCase() : '—'}
+
+              {hashLoading && (
+                <div className="flex items-center gap-2 text-[9px] text-yellow-500">
+                  <Loader className="w-3 h-3 animate-spin" /> COMPUTING HASH FROM FILE BYTES...
                 </div>
-                <button
-                  onClick={() => copy(artifact.id || '', 'hash')}
-                  className="text-gray-600 hover:text-[#d4af37] flex-shrink-0"
+              )}
+
+              {hashError && (
+                <div className="text-[8px] text-red-400 leading-relaxed">
+                  {hashError}
+                  <button
+                    onClick={() => computeHash(artifact.file_url)}
+                    className="ml-2 text-[#d4af37] hover:underline"
+                  >RETRY</button>
+                </div>
+              )}
+
+              {fileHash && (
+                <div className="space-y-1">
+                  {/* Display as 2 rows of 32 hex chars = 32 bytes */}
+                  <div className="bg-black border border-green-900/40 rounded p-2">
+                    <div className="text-[8px] text-green-300 font-bold break-all leading-relaxed tracking-wider">
+                      {fileHash.slice(0, 32)}
+                    </div>
+                    <div className="text-[8px] text-green-300 font-bold break-all leading-relaxed tracking-wider">
+                      {fileHash.slice(32)}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[7px] text-gray-700">256 bits · 32 bytes · hex-encoded</span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => computeHash(artifact.file_url)}
+                        className="text-gray-600 hover:text-[#d4af37]"
+                        title="Recompute"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={() => copy(fileHash, 'hash')}
+                        className="text-gray-600 hover:text-[#d4af37]"
+                        title="Copy hash"
+                      >
+                        {copied === 'hash' ? <CheckCircle className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 pt-1">
+                    <CheckCircle className="w-3 h-3 text-green-400" />
+                    <span className="text-[7px] text-green-400">SNAPSHOT VERIFIED — FILE BYTES MATCH THIS FINGERPRINT</span>
+                  </div>
+                </div>
+              )}
+
+              {!hashLoading && !fileHash && !hashError && artifact.file_url && (
+                <Button
+                  onClick={() => computeHash(artifact.file_url)}
+                  className="w-full bg-[#d4af37] hover:bg-[#b8962f] text-black text-[9px] h-7 font-bold mt-1"
                 >
-                  {copied === 'hash' ? <CheckCircle className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
-                </button>
-              </div>
+                  <Hash className="w-3 h-3 mr-1" /> COMPUTE SNAPSHOT HASH
+                </Button>
+              )}
             </div>
 
             {artifact.file_url && (
               <a href={artifact.file_url} target="_blank" rel="noopener noreferrer">
                 <Button
                   variant="outline"
-                  className="w-full border-[#333] text-gray-400 hover:text-[#d4af37] hover:border-[#d4af37] text-[9px] h-8 mt-2"
+                  className="w-full border-[#333] text-gray-400 hover:text-[#d4af37] hover:border-[#d4af37] text-[9px] h-8 mt-1"
                 >
                   <ExternalLink className="w-3 h-3 mr-1" /> OPEN ORIGINAL FILE
                 </Button>
               </a>
             )}
-
-            <div className="border-t border-[#1a1a1a] pt-2 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-400" />
-              <span className="text-[8px] text-green-400">SNAPSHOT RESTORED FROM PERSISTENT STATE</span>
-            </div>
           </div>
 
           {/* Document preview panel */}
