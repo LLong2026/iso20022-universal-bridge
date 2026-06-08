@@ -19,6 +19,7 @@ import DIDSetup from './pages/DIDSetup';
 import SerialSearch from './pages/SerialSearch';
 import ArtifactViewer from './pages/ArtifactViewer';
 import Receipt from './pages/Receipt';
+import ClaimArtifacts from './pages/ClaimArtifacts';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -79,6 +80,7 @@ const AuthenticatedApp = () => {
       <Route path="/serial-search" element={<SerialSearch />} />
       <Route path="/artifact-viewer" element={<ArtifactViewer />} />
       <Route path="/receipt" element={<Receipt />} />
+      <Route path="/claim-artifacts" element={<ClaimArtifacts />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <NavBar />

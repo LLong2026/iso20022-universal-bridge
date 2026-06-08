@@ -46,6 +46,10 @@
     "bound_serial": {
       "type": "string",
       "description": "The GoldAsset serial this artifact was minted into"
+    },
+    "owner_did": {
+      "type": "string",
+      "description": "DID of the owner who bound this artifact"
     }
   },
   "required": [
