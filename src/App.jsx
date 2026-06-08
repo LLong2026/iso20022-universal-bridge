@@ -13,7 +13,9 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import NavBar from '@/components/console/NavBar';
 import Argis from './pages/Argis';
 import ArgisNavLink from '@/components/argis/ArgisNavLink';
+import SerialSearchLink from '@/components/SerialSearchLink';
 import DIDSetup from './pages/DIDSetup';
+import SerialSearch from './pages/SerialSearch';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -71,10 +73,12 @@ const AuthenticatedApp = () => {
       <Route path="/decrypt" element={<DecryptArtifact />} />
       <Route path="/argis" element={<Argis />} />
       <Route path="/did-setup" element={<DIDSetup />} />
+      <Route path="/serial-search" element={<SerialSearch />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <NavBar />
     <ArgisNavLink />
+    <SerialSearchLink />
     </>
   );
 };
