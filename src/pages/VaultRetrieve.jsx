@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, Download, Lock, Unlock, CheckCircle, AlertTriangle,
-  Loader, Copy, ArrowLeft, FileText, Hash, ShieldCheck, List, Upload, KeySquare
+  Loader, Copy, ArrowLeft, FileText, Hash, ShieldCheck, List, Upload, KeySquare, Eye
 } from 'lucide-react';
 
 const DID_KEY = 'rwa_did_record';
@@ -329,6 +329,12 @@ export default function VaultRetrieve() {
                             </Button>
                           </Link>
                         )}
+                        <Link to={`/artifact-viewer?asset_id=${asset.asset_id}`}>
+                          <Button size="sm" variant="outline"
+                            className="h-6 text-[8px] border-[#555] text-gray-400 hover:text-green-400 hover:border-green-700 px-2">
+                            <Eye className="w-2.5 h-2.5 mr-0.5" />ARTIFACT
+                          </Button>
+                        </Link>
                       </div>
                     </motion.div>
                   ))}
