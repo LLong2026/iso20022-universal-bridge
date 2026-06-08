@@ -6,11 +6,17 @@ export default function SerialSearchLink() {
   const { pathname } = useLocation();
   if (pathname === '/serial-search') return null;
 
+  // On the vault page, sit right next to the FULL INGEST tab
+  const isVault = pathname === '/vault';
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="fixed bottom-20 right-4 z-50"
+      className={isVault
+        ? 'fixed z-50'
+        : 'fixed bottom-20 right-4 z-50'}
+      style={isVault ? { top: '148px', left: '332px' } : {}}
     >
       <Link to="/serial-search">
         <motion.button
