@@ -14,6 +14,7 @@ import NavBar from '@/components/console/NavBar';
 import Argis from './pages/Argis';
 import ArgisNavLink from '@/components/argis/ArgisNavLink';
 import SerialSearchLink from '@/components/SerialSearchLink';
+import ReceiptNavLink from '@/components/ReceiptNavLink';
 import DIDSetup from './pages/DIDSetup';
 import SerialSearch from './pages/SerialSearch';
 import ArtifactViewer from './pages/ArtifactViewer';
@@ -83,6 +84,7 @@ const AuthenticatedApp = () => {
     <NavBar />
     <ArgisNavLink />
     <SerialSearchLink />
+    <ReceiptNavLink />
     </>
   );
 };
