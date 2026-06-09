@@ -13,9 +13,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import NavBar from '@/components/console/NavBar';
 import Argis from './pages/Argis';
 import ArgisNavLink from '@/components/argis/ArgisNavLink';
-import SerialSearchLink from '@/components/SerialSearchLink';
-import ReceiptNavLink from '@/components/ReceiptNavLink';
-import BindNavLink from '@/components/BindNavLink';
+import SecondaryNavBar from '@/components/SecondaryNavBar';
 import DIDSetup from './pages/DIDSetup';
 import SerialSearch from './pages/SerialSearch';
 import ArtifactViewer from './pages/ArtifactViewer';
@@ -87,10 +85,8 @@ const AuthenticatedApp = () => {
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <NavBar />
+    <SecondaryNavBar />
     <ArgisNavLink />
-    <SerialSearchLink />
-    <ReceiptNavLink />
-    <BindNavLink />
     </>
   );
 };
