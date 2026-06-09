@@ -1,25 +1,26 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Zap, FileText, ShieldCheck, Search } from 'lucide-react';
+import { Home, FolderOpen, ShieldCheck, Cpu, Zap, FileText, Search } from 'lucide-react';
 
 const links = [
-  { to: '/bind',            label: 'BIND',          icon: Zap,         hideOn: '/bind' },
-  { to: '/receipt',         label: 'RECEIPT',        icon: FileText,    hideOn: '/receipt' },
-  { to: '/claim-artifacts', label: 'CLAIM DID',      icon: ShieldCheck, hideOn: '/claim-artifacts' },
-  { to: '/serial-search',   label: 'SERIAL LOOKUP',  icon: Search,      hideOn: '/serial-search' },
+  { to: '/',                label: 'CONSOLE',       icon: Home },
+  { to: '/vault',           label: 'VAULT',         icon: FolderOpen },
+  { to: '/decrypt',         label: 'DECRYPT',       icon: ShieldCheck },
+  { to: '/orchestrator',    label: 'AGENTS',        icon: Cpu },
+  { to: '/bind',            label: 'BIND',          icon: Zap },
+  { to: '/receipt',         label: 'RECEIPT',       icon: FileText },
+  { to: '/claim-artifacts', label: 'CLAIM DID',     icon: ShieldCheck },
+  { to: '/serial-search',   label: 'SERIAL LOOKUP', icon: Search },
 ];
 
 export default function SecondaryNavBar() {
   const { pathname } = useLocation();
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 flex items-center gap-1
+    <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1
       bg-[#0d0d0d] border border-[#d4af37]/40 rounded-full px-3 py-2 shadow-xl shadow-black/60
-      backdrop-blur-sm"
-      style={{ transform: 'translateX(calc(-50% + 220px))' }}
-    >
-      {links.map(({ to, label, icon: Icon, hideOn }) => {
-        if (pathname === hideOn) return null;
+      backdrop-blur-sm">
+      {links.map(({ to, label, icon: Icon }) => {
         const active = pathname === to;
         return (
           <Link key={to} to={to}

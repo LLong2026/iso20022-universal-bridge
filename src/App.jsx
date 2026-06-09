@@ -84,7 +84,6 @@ const AuthenticatedApp = () => {
       <Route path="/bind" element={<BindArtifact />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
-    <NavBar />
     <SecondaryNavBar />
     <ArgisNavLink />
     </>
