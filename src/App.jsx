@@ -88,7 +88,6 @@ const AuthenticatedApp = () => {
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <SecondaryNavBar />
-    <AgentConsoleLink />
     <ArgisNavLink />
     </>
   );
