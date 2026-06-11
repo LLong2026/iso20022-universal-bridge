@@ -20,6 +20,8 @@ import ArtifactViewer from './pages/ArtifactViewer';
 import Receipt from './pages/Receipt';
 import ClaimArtifacts from './pages/ClaimArtifacts';
 import BindArtifact from './pages/BindArtifact';
+import AgentConsole from './pages/AgentConsole';
+import AgentConsoleLink from '@/components/agents/AgentConsoleLink';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -82,9 +84,11 @@ const AuthenticatedApp = () => {
       <Route path="/receipt" element={<Receipt />} />
       <Route path="/claim-artifacts" element={<ClaimArtifacts />} />
       <Route path="/bind" element={<BindArtifact />} />
+      <Route path="/agents" element={<AgentConsole />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <SecondaryNavBar />
+    <AgentConsoleLink />
     <ArgisNavLink />
     </>
   );
