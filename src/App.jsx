@@ -22,6 +22,8 @@ import ClaimArtifacts from './pages/ClaimArtifacts';
 import BindArtifact from './pages/BindArtifact';
 import AgentConsole from './pages/AgentConsole';
 import AgentConsoleLink from '@/components/agents/AgentConsoleLink';
+import BulkIngest from './pages/BulkIngest';
+import BulkIngestNavLink from '@/components/BulkIngestNavLink';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -85,10 +87,12 @@ const AuthenticatedApp = () => {
       <Route path="/claim-artifacts" element={<ClaimArtifacts />} />
       <Route path="/bind" element={<BindArtifact />} />
       <Route path="/agents" element={<AgentConsole />} />
+      <Route path="/bulk-ingest" element={<BulkIngest />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     <SecondaryNavBar />
     <ArgisNavLink />
+    <BulkIngestNavLink />
     </>
   );
 };
