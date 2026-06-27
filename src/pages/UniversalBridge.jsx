@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import BridgeFlow from '@/components/bridge/BridgeFlow';
 import RailScorecard from '@/components/bridge/RailScorecard';
 import ReceiptDisplay from '@/components/bridge/ReceiptDisplay';
+import RailTerminal from '@/components/bridge/RailTerminal';
 
 export default function UniversalBridge() {
   const [amount, setAmount] = useState('1000');
@@ -120,6 +121,11 @@ export default function UniversalBridge() {
               </div>
             )}
         </div>
+      </div>
+
+      {/* Rail terminal — live settlement status */}
+      <div className="mt-5">
+        <RailTerminal result={result} executing={executing} />
       </div>
 
       {/* Settlement history */}
