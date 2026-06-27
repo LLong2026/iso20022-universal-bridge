@@ -150,7 +150,13 @@ Respond with JSON:
     prompt, response_json_schema: {
       type: 'object',
       properties: {
-        optimizations: { type: 'array' },
+        optimizations: { type: 'array', items: { type: 'object', properties: {
+          agent: { type: 'string' },
+          type: { type: 'string' },
+          description: { type: 'string' },
+          estimated_improvement_pct: { type: 'number' },
+          priority: { type: 'string' }
+        } } },
         message: { type: 'string' },
         next_sweep_minutes: { type: 'number' }
       }
