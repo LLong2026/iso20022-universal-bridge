@@ -41,8 +41,8 @@ function buildXml(seed, token, rail, receipt) {
 
 const BRIDGE_PROFILES = [
   { priority: 'fastest', amount: 1000, currency: 'USD', counterparty_tier: 'retail', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' },
-  { priority: 'cheapest', amount: 500, currency: 'USD', counterparty_tier: 'retail', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' },
   { priority: 'most_compliant', amount: 50000, currency: 'USD', counterparty_tier: 'treasury', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' },
+  { priority: 'cheapest', amount: 500, currency: 'USD', counterparty_tier: 'retail', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' },
   { priority: 'highest_finality', amount: 250000, currency: 'USD', counterparty_tier: 'central_bank', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' }
 ];
 
