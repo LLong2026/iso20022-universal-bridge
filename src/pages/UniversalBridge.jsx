@@ -185,6 +185,14 @@ export default function UniversalBridge() {
         </div>
       )}
 
+      {/* Lone Star Ledger — settlement event */}
+      {result?.settlement_event && (
+        <div className="mt-6 border border-[#d4af37]/30 rounded bg-black p-4">
+          <div className="text-[10px] font-bold tracking-widest text-[#d4af37] mb-2">LONE STAR LEDGER — SETTLEMENT EVENT</div>
+          <pre className="text-[10px] font-mono text-gray-300 whitespace-pre-wrap leading-relaxed">{result.settlement_event}</pre>
+        </div>
+      )}
+
       {/* Settlement history */}
       <div className="mt-6">
         <div className="flex items-center gap-2 mb-3">

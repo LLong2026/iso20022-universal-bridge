@@ -222,6 +222,35 @@ Deno.serve(async (req) => {
         status: lifecycle.status === 'failed' ? 'failed' : 'settled'
       });
 
+      // Step 7b — Emit immutable settlement event to the Lone Star Ledger
+      const railTag = selected.name.toUpperCase().replace(/ /g, '_');
+      const proofShort = (lifecycle.settlement_proof || seedHash).substring(0, 32) + '...';
+      const ts = new Date().toISOString().substring(11, 19);
+      const settlementEvent =
+        `[${ts}] [SETTLEMENT] UNIVERSAL ROUTE COMPLETE\n` +
+        `  RAIL: ${railTag}\n` +
+        `  RECEIPT: ${receiptId}\n` +
+        `  PROOF: ${proofShort}\n` +
+        `  AMOUNT: ${normalized.amount} ${normalized.currency}\n` +
+        `  SENDER: ${normalized.sender}\n` +
+        `  RECEIVER: ${normalized.receiver}`;
+      await base44.asServiceRole.entities.AuditLog.create({
+        log_id: receiptId,
+        action: 'SETTLEMENT',
+        entity_type: 'UniversalReceipt',
+        entity_id: receiptId,
+        transaction_id: lifecycle.lifecycle_id || null,
+        log_hash: lifecycle.settlement_proof || seedHash,
+        severity: 'info',
+        after_state: {
+          selected_rail: selected.name, rail_score: selected.score,
+          seed_id: seedId, token_id: tokenId, lifecycle_id: lifecycle.lifecycle_id || null,
+          settlement_proof: lifecycle.settlement_proof || null, receipt_id: receiptId,
+          amount: normalized.amount, currency: normalized.currency,
+          sender: normalized.sender, receiver: normalized.receiver
+        }
+      });
+
       // Step 8 — Flow Summary returned to caller
       return Response.json({
         flow: 'Normalize → Seed → Token → Filter Rails → Evaluate → Select → Execute Lifecycle → Receipt',
@@ -231,6 +260,7 @@ Deno.serve(async (req) => {
         scored_rails: sorted,
         rejected_rails: rejected,
         selected_rail: selected,
+        settlement_event: settlementEvent,
         selection_basis: {
           priority: normalized.priority,
           counterparty_tier: normalized.counterparty_tier,
