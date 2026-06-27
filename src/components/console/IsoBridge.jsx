@@ -54,7 +54,6 @@ export default function IsoBridge() {
   const [executing, setExecuting] = useState(false);
   const [error, setError] = useState(null);
   const intervalRef = useRef(null);
-  const cycleRef = useRef(0);
 
   const statusColors = {
     READY: 'text-blue-400',
@@ -67,8 +66,7 @@ export default function IsoBridge() {
     setExecuting(true); setError(null); setStatus('PROCESSING');
     setDisplayed(''); setIsTyping(true);
     try {
-      const profile = BRIDGE_PROFILES[cycleRef.current % BRIDGE_PROFILES.length];
-      cycleRef.current++;
+      const profile = BRIDGE_PROFILES[Math.floor(Math.random() * BRIDGE_PROFILES.length)];
       const { data } = await base44.functions.invoke('universalBridge', {
         action: 'execute',
         instruction: profile
