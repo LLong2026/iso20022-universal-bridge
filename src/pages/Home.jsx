@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import LedgerLog from '@/components/console/LedgerLog';
 import FractalBindingWrapper from '@/components/console/FractalBindingWrapper';
 import ArtifactUploader from '@/components/console/ArtifactUploader';
+import IsoBridge from '@/components/console/IsoBridge';
 import TopologicalResonance from '@/components/console/TopologicalResonance';
 import AuditDashboard from '@/components/console/AuditDashboard';
 import StatusBadge from '@/components/console/StatusBadge';
@@ -213,6 +214,14 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
+        >
+          <IsoBridge />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4 }}
         >
           <TopologicalResonance 
             onCorrupt={handleCorrupt}
