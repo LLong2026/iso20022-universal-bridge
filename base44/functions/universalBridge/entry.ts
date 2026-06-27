@@ -54,7 +54,9 @@ function normalizeInstruction(body) {
     counterparty_tier: src.counterparty_tier || 'retail',
     max_cost: src.max_cost != null ? Number(src.max_cost) : null,
     min_liquidity: src.min_liquidity != null ? Number(src.min_liquidity) : null,
-    min_finality: src.min_finality != null ? Number(src.min_finality) : null
+    min_finality: src.min_finality != null ? Number(src.min_finality) : null,
+    bound_asset_id: src.bound_asset_id || null,
+    owner_did: src.owner_did || null
   };
 }
 
@@ -226,14 +228,24 @@ Deno.serve(async (req) => {
       const railTag = selected.name.toUpperCase().replace(/ /g, '_');
       const proofShort = (lifecycle.settlement_proof || seedHash).substring(0, 32) + '...';
       const ts = new Date().toISOString().substring(11, 19);
-      const settlementEvent =
+      let settlementEvent =
         `[${ts}] [SETTLEMENT] UNIVERSAL ROUTE COMPLETE\n` +
         `  RAIL: ${railTag}\n` +
-        `  RECEIPT: ${receiptId}\n` +
-        `  PROOF: ${proofShort}\n` +
+        `  RAIL_SCORE: ${selected.score}\n` +
+        `  SEED_ID: ${seedId}\n` +
+        `  TOKEN_ID: ${tokenId}\n` +
+        `  SATOSHI_ANCHOR: ${satoshiAnchor}\n` +
+        `  LIFECYCLE_ID: ${lifecycle.lifecycle_id || 'N/A'}\n` +
+        `  SETTLEMENT_PROOF: ${proofShort}\n` +
+        `  RECEIPT_ID: ${receiptId}\n` +
         `  AMOUNT: ${normalized.amount} ${normalized.currency}\n` +
         `  SENDER: ${normalized.sender}\n` +
         `  RECEIVER: ${normalized.receiver}`;
+      if (normalized.bound_asset_id || normalized.owner_did) {
+        settlementEvent +=
+          `\n  BOUND_ASSET_ID: ${normalized.bound_asset_id || 'N/A'}` +
+          `\n  OWNER_DID: ${normalized.owner_did || 'N/A'}`;
+      }
       await base44.asServiceRole.entities.AuditLog.create({
         log_id: receiptId,
         action: 'SETTLEMENT',
@@ -244,10 +256,12 @@ Deno.serve(async (req) => {
         severity: 'info',
         after_state: {
           selected_rail: selected.name, rail_score: selected.score,
-          seed_id: seedId, token_id: tokenId, lifecycle_id: lifecycle.lifecycle_id || null,
+          seed_id: seedId, token_id: tokenId, satoshi_anchor: satoshiAnchor,
+          lifecycle_id: lifecycle.lifecycle_id || null,
           settlement_proof: lifecycle.settlement_proof || null, receipt_id: receiptId,
           amount: normalized.amount, currency: normalized.currency,
-          sender: normalized.sender, receiver: normalized.receiver
+          sender: normalized.sender, receiver: normalized.receiver,
+          bound_asset_id: normalized.bound_asset_id, owner_did: normalized.owner_did
         }
       });
 
