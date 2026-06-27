@@ -26,6 +26,7 @@ export default function Home() {
   const [isCorrupted, setIsCorrupted] = useState(false);
   const [repairProgress, setRepairProgress] = useState(null);
   const savedTokensRef = useRef(0);
+  const seenSettlementsRef = useRef(new Set());
 
   // Fetch real audit data
   const { data: auditData, isLoading } = useQuery({
@@ -45,6 +46,46 @@ export default function Home() {
   const addLog = useCallback((type, message) => {
     const time = new Date().toLocaleTimeString('en-US', { hour12: false });
     setLogs(prev => [...prev, { time, type, message }]);
+  }, []);
+
+  // Stream Universal Bridge settlement events into the Lone Star Ledger
+  useEffect(() => {
+    const formatSettlement = (entry) => {
+      const a = entry.after_state || {};
+      const rail = (a.selected_rail || 'UNKNOWN').toUpperCase().replace(/ /g, '_');
+      const receipt = a.receipt_id || entry.log_id || 'N/A';
+      const proof = (a.settlement_proof || entry.log_hash || '').substring(0, 12);
+      const amt = a.amount != null ? `${a.amount} ${a.currency || ''}`.trim() : '';
+      const parties = a.sender && a.receiver ? `${a.sender} → ${a.receiver}` : '';
+      const time = entry.created_date
+        ? new Date(entry.created_date).toLocaleTimeString('en-US', { hour12: false })
+        : new Date().toLocaleTimeString('en-US', { hour12: false });
+      return {
+        time,
+        type: 'BRIDGE',
+        message: `UNIVERSAL ROUTE COMPLETE | RAIL: ${rail} | RECEIPT: ${receipt} | PROOF: ${proof}...${amt ? ' | ' + amt : ''}${parties ? ' | ' + parties : ''}`
+      };
+    };
+
+    base44.entities.AuditLog.filter({ action: 'SETTLEMENT' }, '-created_date', 10)
+      .then((entries) => {
+        if (!entries || !entries.length) return;
+        const formatted = [...entries].reverse()
+          .filter((e) => !seenSettlementsRef.current.has(e.log_id))
+          .map((e) => { seenSettlementsRef.current.add(e.log_id); return formatSettlement(e); });
+        if (formatted.length) setLogs(prev => [...prev, ...formatted]);
+      })
+      .catch(() => {});
+
+    const unsubscribe = base44.entities.AuditLog.subscribe((event) => {
+      if (event.type !== 'create') return;
+      const entry = event.data;
+      if (!entry || entry.action !== 'SETTLEMENT') return;
+      if (seenSettlementsRef.current.has(entry.log_id)) return;
+      seenSettlementsRef.current.add(entry.log_id);
+      setLogs(prev => [...prev, formatSettlement(entry)]);
+    });
+    return () => { if (unsubscribe) unsubscribe(); };
   }, []);
 
   const mintMutation = useMutation({
