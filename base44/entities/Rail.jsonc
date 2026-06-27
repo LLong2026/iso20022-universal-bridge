@@ -1,0 +1,49 @@
+{
+  "name": "Rail",
+  "type": "object",
+  "properties": {
+    "rail_id": {
+      "type": "string",
+      "description": "Unique rail identifier"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name of the settlement rail"
+    },
+    "description": {
+      "type": "string"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Relative transaction cost (lower is better)"
+    },
+    "speed": {
+      "type": "number",
+      "description": "Throughput / settlement speed (higher is better)"
+    },
+    "liquidity": {
+      "type": "number",
+      "description": "Liquidity depth 0-100 (higher is better)"
+    },
+    "compliance": {
+      "type": "number",
+      "description": "Compliance score 0-100 (higher is better)"
+    },
+    "finality": {
+      "type": "number",
+      "description": "Settlement finality 0-100 (higher is better)"
+    },
+    "lifecycle_handler": {
+      "type": "string",
+      "description": "Identifier of the rail-specific lifecycle handler"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "rail_id",
+    "name"
+  ]
+}

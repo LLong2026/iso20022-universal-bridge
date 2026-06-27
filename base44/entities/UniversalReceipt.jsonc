@@ -1,0 +1,64 @@
+{
+  "name": "UniversalReceipt",
+  "type": "object",
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "description": "Universal settlement receipt ID"
+    },
+    "seed_id": {
+      "type": "string",
+      "description": "Universal seed ID from normalization"
+    },
+    "token_id": {
+      "type": "string",
+      "description": "Universal token ID from Satoshi tokenization"
+    },
+    "selected_rail": {
+      "type": "string",
+      "description": "Name of the rail selected for settlement"
+    },
+    "rail_score": {
+      "type": "number",
+      "description": "Deterministic score of the selected rail"
+    },
+    "lifecycle_id": {
+      "type": "string",
+      "description": "Lifecycle execution ID"
+    },
+    "settlement_proof": {
+      "type": "string",
+      "description": "Cryptographic settlement proof hash"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "sender": {
+      "type": "string"
+    },
+    "receiver": {
+      "type": "string"
+    },
+    "instruction_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "settled",
+        "failed"
+      ],
+      "default": "settled"
+    }
+  },
+  "required": [
+    "receipt_id",
+    "seed_id",
+    "token_id",
+    "selected_rail"
+  ]
+}
