@@ -39,6 +39,13 @@ function buildXml(seed, token, rail, receipt) {
 </Document>`;
 }
 
+const BRIDGE_PROFILES = [
+  { priority: 'fastest', amount: 1000, currency: 'USD', counterparty_tier: 'retail', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' },
+  { priority: 'cheapest', amount: 500, currency: 'USD', counterparty_tier: 'retail', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' },
+  { priority: 'most_compliant', amount: 50000, currency: 'USD', counterparty_tier: 'treasury', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' },
+  { priority: 'highest_finality', amount: 250000, currency: 'USD', counterparty_tier: 'central_bank', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' }
+];
+
 export default function IsoBridge() {
   const [displayed, setDisplayed] = useState('WAITING FOR TRANSACTION...');
   const [isTyping, setIsTyping] = useState(false);
@@ -47,6 +54,7 @@ export default function IsoBridge() {
   const [executing, setExecuting] = useState(false);
   const [error, setError] = useState(null);
   const intervalRef = useRef(null);
+  const cycleRef = useRef(0);
 
   const statusColors = {
     READY: 'text-blue-400',
@@ -59,9 +67,11 @@ export default function IsoBridge() {
     setExecuting(true); setError(null); setStatus('PROCESSING');
     setDisplayed(''); setIsTyping(true);
     try {
+      const profile = BRIDGE_PROFILES[cycleRef.current % BRIDGE_PROFILES.length];
+      cycleRef.current++;
       const { data } = await base44.functions.invoke('universalBridge', {
         action: 'execute',
-        instruction: { amount: 1000, currency: 'USD', sender: 'TREASURY_WALLET_01', receiver: 'FED_RESERVE_BANK' }
+        instruction: profile
       });
 
       setRailName(data.selected_rail.name);
@@ -72,6 +82,7 @@ export default function IsoBridge() {
         '> STEP 1 — NORMALIZE: ISO20022 → UNIVERSAL SEED',
         `  SEED_ID: ${data.seed.seed_id}`,
         `  AMOUNT: ${data.seed.amount} ${data.seed.currency}`,
+        `  PRIORITY: ${data.seed.priority} | TIER: ${data.seed.counterparty_tier}`,
         `  SENDER: ${data.seed.sender} → RECEIVER: ${data.seed.receiver}`,
         '',
         '> STEP 2 — TOKENIZE: SATOSHI TOKENIZATION MACHINE',
