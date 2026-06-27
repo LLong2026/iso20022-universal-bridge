@@ -21,6 +21,11 @@ export default function UniversalBridge() {
   const [activeStep, setActiveStep] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [priority, setPriority] = useState('balanced');
+  const [counterpartyTier, setCounterpartyTier] = useState('central_bank');
+  const [maxCost, setMaxCost] = useState('');
+  const [minLiquidity, setMinLiquidity] = useState('');
+  const [minFinality, setMinFinality] = useState('');
 
   useEffect(() => {
     loadRails();
@@ -44,9 +49,15 @@ export default function UniversalBridge() {
   const handleExecute = async () => {
     setExecuting(true); setError(null); setResult(null); setActiveStep(1);
     try {
+      const routing = {
+        priority, counterparty_tier: counterpartyTier,
+        max_cost: maxCost ? parseFloat(maxCost) : null,
+        min_liquidity: minLiquidity ? parseFloat(minLiquidity) : null,
+        min_finality: minFinality ? parseFloat(minFinality) : null
+      };
       const payload = rawXml.trim()
-        ? { action: 'execute', iso20022_xml: rawXml }
-        : { action: 'execute', instruction: { amount: parseFloat(amount), currency, sender, receiver } };
+        ? { action: 'execute', iso20022_xml: rawXml, ...routing }
+        : { action: 'execute', instruction: { amount: parseFloat(amount), currency, sender, receiver, ...routing } };
       const [res] = await Promise.all([
         base44.functions.invoke('universalBridge', payload),
         new Promise(r => setTimeout(r, 1300))
@@ -93,6 +104,24 @@ export default function UniversalBridge() {
             <Input value={sender} onChange={e => setSender(e.target.value)} placeholder="SENDER DID" className="bg-black border-[#333] text-gray-200 text-xs font-mono h-9" />
             <Input value={receiver} onChange={e => setReceiver(e.target.value)} placeholder="RECEIVER DID" className="bg-black border-[#333] text-gray-200 text-xs font-mono h-9" />
             <Textarea value={rawXml} onChange={e => setRawXml(e.target.value)} placeholder="OPTIONAL: paste raw ISO20022 XML (overrides fields above)" className="bg-black border-[#333] text-gray-400 text-[10px] font-mono min-h-[80px] resize-none" />
+            <div className="text-[8px] text-gray-600 tracking-widest pt-1">ROUTING CONSTRAINTS</div>
+            <select value={priority} onChange={e => setPriority(e.target.value)} className="bg-black border-[#333] text-gray-300 text-[10px] font-mono h-9 rounded px-2">
+              <option value="balanced">PRIORITY: BALANCED</option>
+              <option value="fastest">PRIORITY: FASTEST</option>
+              <option value="cheapest">PRIORITY: CHEAPEST</option>
+              <option value="most_compliant">PRIORITY: MOST COMPLIANT</option>
+              <option value="highest_finality">PRIORITY: HIGHEST FINALITY</option>
+            </select>
+            <select value={counterpartyTier} onChange={e => setCounterpartyTier(e.target.value)} className="bg-black border-[#333] text-gray-300 text-[10px] font-mono h-9 rounded px-2">
+              <option value="retail">COUNTERPARTY: RETAIL</option>
+              <option value="treasury">COUNTERPARTY: TREASURY</option>
+              <option value="central_bank">COUNTERPARTY: CENTRAL BANK</option>
+            </select>
+            <div className="grid grid-cols-3 gap-2">
+              <Input value={maxCost} onChange={e => setMaxCost(e.target.value)} placeholder="MAX COST" className="bg-black border-[#333] text-gray-400 text-[9px] font-mono h-8" />
+              <Input value={minLiquidity} onChange={e => setMinLiquidity(e.target.value)} placeholder="MIN LIQ" className="bg-black border-[#333] text-gray-400 text-[9px] font-mono h-8" />
+              <Input value={minFinality} onChange={e => setMinFinality(e.target.value)} placeholder="MIN FIN" className="bg-black border-[#333] text-gray-400 text-[9px] font-mono h-8" />
+            </div>
             <Button onClick={handleExecute} disabled={executing} className="w-full bg-[#d4af37] hover:bg-[#b8962f] text-black font-bold uppercase tracking-wider h-10">
               {executing ? <><Loader className="w-4 h-4 mr-2 animate-spin" />ROUTING...</> : <><Send className="w-4 h-4 mr-2" />EXECUTE BRIDGE</>}
             </Button>
@@ -123,6 +152,38 @@ export default function UniversalBridge() {
           <ReceiptDisplay result={result} />
         </div>
       </div>
+
+      {/* Decision trace */}
+      {result && (
+        <div className="mt-6 border border-[#222] rounded bg-black/30 p-4">
+          <div className="text-[10px] font-bold tracking-widest text-[#d4af37] mb-3">DECISION TRACE — RAIL SELECTION LOGIC</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+            <div><div className="text-[8px] text-gray-600 tracking-wider">PRIORITY</div><div className="text-[10px] text-gray-200 font-mono">{(result.selection_basis?.priority || 'balanced').toUpperCase()}</div></div>
+            <div><div className="text-[8px] text-gray-600 tracking-wider">COUNTERPARTY TIER</div><div className="text-[10px] text-gray-200 font-mono">{(result.selection_basis?.counterparty_tier || 'retail').toUpperCase()}</div></div>
+            <div><div className="text-[8px] text-gray-600 tracking-wider">ELIGIBLE RAILS</div><div className="text-[10px] text-green-400 font-mono">{result.scored_rails?.length || 0}</div></div>
+            <div><div className="text-[8px] text-gray-600 tracking-wider">REJECTED RAILS</div><div className="text-[10px] text-red-400 font-mono">{result.rejected_rails?.length || 0}</div></div>
+          </div>
+          {result.rejected_rails?.length > 0 && (
+            <div className="space-y-1 mb-3">
+              <div className="text-[8px] text-gray-600 tracking-widest">FILTERED OUT:</div>
+              {result.rejected_rails.map((r, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-[9px] font-mono">
+                  <span className="text-gray-500">{r.name}</span>
+                  <span className="text-red-400">→ {r.reasons.join(', ').replace(/_/g, ' ')}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {result.selection_basis?.weights && (
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[8px] font-mono text-gray-500">
+              <span className="text-gray-600">WEIGHTS:</span>
+              {Object.entries(result.selection_basis.weights).map(([k, v]) => (
+                <span key={k}>{k}: {(v * 100).toFixed(0)}%</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Settlement history */}
       <div className="mt-6">

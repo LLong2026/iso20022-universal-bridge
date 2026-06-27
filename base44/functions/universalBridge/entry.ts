@@ -1,10 +1,9 @@
 /**
  * universalBridge
- * Universal Bridge Logic — replaces the fixed XRP-only flow with
- * deterministic multi-rail universal routing.
+ * Universal Bridge Logic — instruction-aware deterministic multi-rail routing.
  *
- * Flow: Normalize → Seed → Token → Evaluate Rails → Select Rail
- *       → Execute Lifecycle → Generate Universal Receipt
+ * Flow: Normalize → Seed → Token → Filter Rails → Evaluate (priority-weighted)
+ *       → Select Rail → Execute Lifecycle → Generate Universal Receipt
  */
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
@@ -16,9 +15,12 @@ async function sha256Hex(data) {
 
 function rand() { return Math.random().toString(36).substr(2, 8).toUpperCase(); }
 
+const TIER_RANK = { retail: 1, treasury: 2, central_bank: 3 };
+
 // ── Step 1: Normalize ──────────────────────────────────────────────────────────
 function normalizeInstruction(body) {
   const now = new Date().toISOString();
+  const src = body.instruction || body;
   let amount, currency, sender, receiver, instruction_id;
 
   if (body.instruction) {
@@ -46,17 +48,64 @@ function normalizeInstruction(body) {
     instruction_id = body.instruction_id || `ISO-${Date.now()}`;
   }
 
-  return { amount, currency, sender, receiver, instruction_id, timestamp: now };
+  return {
+    amount, currency, sender, receiver, instruction_id, timestamp: now,
+    priority: src.priority || 'balanced',
+    counterparty_tier: src.counterparty_tier || 'retail',
+    max_cost: src.max_cost != null ? Number(src.max_cost) : null,
+    min_liquidity: src.min_liquidity != null ? Number(src.min_liquidity) : null,
+    min_finality: src.min_finality != null ? Number(src.min_finality) : null
+  };
 }
 
-// ── Step 4: Deterministic Evaluation ──────────────────────────────────────────
-function scoreRails(rails) {
+// ── Step 3: Filter rails by instruction constraints ────────────────────────────
+function filterRails(rails, instruction) {
+  const { currency, amount, counterparty_tier, max_cost, min_liquidity, min_finality } = instruction;
+  const requiredTier = TIER_RANK[counterparty_tier] || 1;
+  const eligible = [];
+  const rejected = [];
+
+  for (const r of rails) {
+    const reasons = [];
+    if (Array.isArray(r.supported_currencies) && r.supported_currencies.length && !r.supported_currencies.includes(currency))
+      reasons.push('currency_not_supported');
+    if (r.min_amount != null && amount < r.min_amount) reasons.push('below_min_amount');
+    if (r.max_amount != null && amount > r.max_amount) reasons.push('above_max_amount');
+    if (r.regulatory_tier != null && r.regulatory_tier < requiredTier) reasons.push('insufficient_regulatory_tier');
+    if (max_cost != null && (r.cost ?? 0) > max_cost) reasons.push('exceeds_max_cost');
+    if (min_liquidity != null && (r.liquidity ?? 0) < min_liquidity) reasons.push('below_min_liquidity');
+    if (min_finality != null && (r.finality ?? 0) < min_finality) reasons.push('below_min_finality');
+
+    if (reasons.length) rejected.push({ rail_id: r.rail_id, name: r.name, reasons });
+    else eligible.push(r);
+  }
+  return { eligible, rejected };
+}
+
+// ── Step 4: Priority + amount-aware weight profile ────────────────────────────
+function getWeights(priority, amount) {
+  let W;
+  switch (priority) {
+    case 'fastest':           W = { cost: 0.10, speed: 0.45, liquidity: 0.15, compliance: 0.15, finality: 0.15 }; break;
+    case 'cheapest':          W = { cost: 0.45, speed: 0.10, liquidity: 0.15, compliance: 0.15, finality: 0.15 }; break;
+    case 'most_compliant':    W = { cost: 0.10, speed: 0.10, liquidity: 0.15, compliance: 0.45, finality: 0.20 }; break;
+    case 'highest_finality':  W = { cost: 0.10, speed: 0.10, liquidity: 0.15, compliance: 0.20, finality: 0.45 }; break;
+    default:                 W = { cost: 0.20, speed: 0.25, liquidity: 0.20, compliance: 0.20, finality: 0.15 }; break;
+  }
+  // Large settlements demand depth + finality; cost/speed matter less
+  if (amount > 100000) { W.liquidity *= 1.6; W.finality *= 1.4; W.cost *= 0.5; W.speed *= 0.5; }
+  const sum = Object.values(W).reduce((a, b) => a + b, 0) || 1;
+  for (const k in W) W[k] = Math.round((W[k] / sum) * 1000) / 1000;
+  return W;
+}
+
+// ── Step 4b: Deterministic scoring with active weights ─────────────────────────
+function scoreRails(rails, instruction = {}) {
+  const W = getWeights(instruction.priority || 'balanced', instruction.amount || 0);
   const costs = rails.map(r => r.cost ?? 0);
   const speeds = rails.map(r => r.speed ?? 0);
   const minCost = Math.min(...costs), maxCost = Math.max(...costs);
   const maxSpeed = Math.max(...speeds) || 1;
-  // Fixed weights → deterministic: same rails → same scores → same selection
-  const W = { cost: 0.20, speed: 0.25, liquidity: 0.20, compliance: 0.20, finality: 0.15 };
 
   return rails.map(r => {
     const costScore = maxCost === minCost ? 1 : (maxCost - (r.cost ?? 0)) / (maxCost - minCost);
@@ -90,14 +139,14 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { action } = body;
 
-    // ── List rails (scored) ──────────────────────────────────────────────────
+    // ── List rails (scored, balanced) ────────────────────────────────────────
     if (action === 'list_rails') {
       const rails = await base44.asServiceRole.entities.Rail.filter({ is_active: true });
       const scored = scoreRails(rails).sort((a, b) => b.score - a.score);
       return Response.json({ rails: scored });
     }
 
-    // ── List receipts ─────────────────────────────────────────────────────────
+    // ── List receipts ───────────────────────────────────────────────────────
     if (action === 'list_receipts') {
       const receipts = await base44.asServiceRole.entities.UniversalReceipt.list('-created_date', 50);
       return Response.json({ receipts });
@@ -124,8 +173,21 @@ Deno.serve(async (req) => {
       const rails = await base44.asServiceRole.entities.Rail.filter({ is_active: true });
       if (!rails.length) return Response.json({ error: 'No active rails in registry' }, { status: 500 });
 
-      // Step 4 — Deterministic Evaluation
-      const scored = scoreRails(rails);
+      // Step 3b — Filter rails by instruction constraints
+      const { eligible, rejected } = filterRails(rails, normalized);
+      if (!eligible.length) {
+        return Response.json({
+          error: 'No eligible rails after applying instruction constraints',
+          rejected_rails: rejected,
+          selection_basis: {
+            priority: normalized.priority, counterparty_tier: normalized.counterparty_tier,
+            amount: normalized.amount, currency: normalized.currency
+          }
+        }, { status: 422 });
+      }
+
+      // Step 4 — Deterministic Evaluation (priority + amount weighted)
+      const scored = scoreRails(eligible, normalized);
 
       // Step 5 — Rail Selection (highest deterministic score)
       const sorted = [...scored].sort((a, b) => b.score - a.score);
@@ -162,12 +224,21 @@ Deno.serve(async (req) => {
 
       // Step 8 — Flow Summary returned to caller
       return Response.json({
-        flow: 'Normalize → Seed → Token → Evaluate Rails → Select Rail → Execute Lifecycle → Generate Universal Receipt',
+        flow: 'Normalize → Seed → Token → Filter Rails → Evaluate → Select → Execute Lifecycle → Receipt',
         seed,
         seed_hash: seedHash,
         token,
         scored_rails: sorted,
+        rejected_rails: rejected,
         selected_rail: selected,
+        selection_basis: {
+          priority: normalized.priority,
+          counterparty_tier: normalized.counterparty_tier,
+          amount: normalized.amount,
+          currency: normalized.currency,
+          weights: getWeights(normalized.priority, normalized.amount),
+          filters: { max_cost: normalized.max_cost, min_liquidity: normalized.min_liquidity, min_finality: normalized.min_finality }
+        },
         lifecycle,
         receipt
       });

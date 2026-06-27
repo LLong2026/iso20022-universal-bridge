@@ -40,6 +40,25 @@
     "is_active": {
       "type": "boolean",
       "default": true
+    },
+    "supported_currencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Currencies this rail can settle"
+    },
+    "min_amount": {
+      "type": "number",
+      "description": "Minimum settlement amount"
+    },
+    "max_amount": {
+      "type": "number",
+      "description": "Maximum settlement amount"
+    },
+    "regulatory_tier": {
+      "type": "number",
+      "description": "Highest counterparty tier cleared: 1=retail, 2=treasury, 3=central_bank"
     }
   },
   "required": [
