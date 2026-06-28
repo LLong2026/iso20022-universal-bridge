@@ -36,10 +36,22 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
+const COVER_FLAG = 'jasper_cover_seen';
+
+const Landing = () => {
+  const seen = sessionStorage.getItem(COVER_FLAG);
+  if (!seen) return <Cover />;
+  return (
+    <LayoutWrapper currentPageName={mainPageKey}>
+      <MainPage />
+    </LayoutWrapper>
+  );
+};
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
-  const isCover = location.pathname === '/';
+  const isCover = location.pathname === '/' && !sessionStorage.getItem(COVER_FLAG);
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -65,7 +77,7 @@ const AuthenticatedApp = () => {
   return (
     <>
     <Routes>
-      <Route path="/" element={<Cover />} />
+      <Route path="/" element={<Landing />} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}

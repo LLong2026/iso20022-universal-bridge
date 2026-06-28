@@ -158,7 +158,10 @@ export default function Cover() {
           >
             <Button
               size="lg"
-              onClick={() => navigate("/claim-artifacts")}
+              onClick={() => {
+                sessionStorage.setItem("jasper_cover_seen", "1");
+                navigate("/claim-artifacts");
+              }}
               className="group bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-semibold hover:from-emerald-400 hover:to-cyan-400 shadow-[0_0_40px_-10px_rgba(16,185,129,0.7)]"
             >
               Next
