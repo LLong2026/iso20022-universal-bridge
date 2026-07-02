@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -37,20 +38,10 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 
 const COVER_FLAG = 'jasper_cover_seen';
 
-const Landing = () => {
-  const seen = sessionStorage.getItem(COVER_FLAG);
-  if (!seen) return <Cover />;
-  return (
-    <LayoutWrapper currentPageName={mainPageKey}>
-      <MainPage />
-    </LayoutWrapper>
-  );
-};
-
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
-  const isCover = location.pathname === '/' && !sessionStorage.getItem(COVER_FLAG);
+  const [coverDismissed, setCoverDismissed] = useState(false);
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -72,11 +63,24 @@ const AuthenticatedApp = () => {
     }
   }
 
+  // Synchronously dismiss cover when returning to "/" after Cover's Next button
+  if (location.pathname === '/' && !coverDismissed) {
+    if (sessionStorage.getItem(COVER_FLAG)) {
+      sessionStorage.removeItem(COVER_FLAG);
+      setCoverDismissed(true);
+    }
+  }
+  const isCover = location.pathname === '/' && !coverDismissed;
+
   // Render the main app
   return (
     <>
     <Routes>
-      <Route path="/" element={<Landing />} />
+      <Route path="/" element={
+        coverDismissed
+          ? <LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>
+          : <Cover />
+      } />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
