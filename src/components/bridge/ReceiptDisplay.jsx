@@ -35,6 +35,11 @@ export default function ReceiptDisplay({ result }) {
         <Row label="TOKEN ID" value={token.token_id} />
         <Row label="SELECTED RAIL" value={selected_rail.name} />
         <Row label="RAIL SCORE" value={selected_rail.score.toFixed(4)} />
+        {(() => {
+          const ms = Math.round(1000000 / (selected_rail.speed || 1000));
+          const settleTime = ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
+          return <Row label="SETTLEMENT TIME" value={settleTime} />;
+        })()}
         <Row label="LIFECYCLE ID" value={lifecycle.lifecycle_id} />
         <Row label="SETTLEMENT PROOF" value={receipt.settlement_proof} />
         <Row label="AMOUNT" value={`${receipt.amount} ${receipt.currency}`} />

@@ -204,10 +204,15 @@ export default function UniversalBridge() {
             <div className="text-[10px] text-gray-600 py-4 text-center">NO SETTLEMENTS YET</div>
           ) : receipts.map((r) => {
             const settled = r.status === 'settled';
+            const railData = rails.find(rl => rl.name === r.selected_rail);
+            const speed = railData?.speed || 1000;
+            const settleMs = Math.round(1000000 / speed);
+            const settleTime = settleMs < 1000 ? `${settleMs}ms` : `${(settleMs / 1000).toFixed(1)}s`;
             return (
               <div key={r.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 p-3 text-[10px] font-mono">
                 <span className={`font-bold ${settled ? 'text-green-400' : 'text-red-400'}`}>{r.status.toUpperCase()}</span>
                 <span className="text-gray-300">{r.selected_rail}</span>
+                <span className="text-green-400 font-bold">⏱ {settleTime}</span>
                 <span className="text-gray-400">{r.amount} {r.currency}</span>
                 <span className="text-gray-500">{r.receipt_id}</span>
                 <span className="text-gray-600 ml-auto">{new Date(r.created_date).toLocaleString('en-US')}</span>
