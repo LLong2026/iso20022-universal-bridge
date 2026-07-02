@@ -23,7 +23,6 @@ import BindArtifact from './pages/BindArtifact';
 import AgentConsole from './pages/AgentConsole';
 import AgentConsoleLink from '@/components/agents/AgentConsoleLink';
 import BulkIngest from './pages/BulkIngest';
-import BulkIngestNavLink from '@/components/BulkIngestNavLink';
 import UniversalBridge from './pages/UniversalBridge';
 import UniversalBridgeNavLink from '@/components/bridge/UniversalBridgeNavLink';
 import Cover from './pages/Cover';
@@ -108,7 +107,6 @@ const AuthenticatedApp = () => {
       <>
         <SecondaryNavBar />
         <ArgisNavLink />
-        <BulkIngestNavLink />
         <UniversalBridgeNavLink />
       </>
     )}
