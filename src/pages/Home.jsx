@@ -204,7 +204,7 @@ export default function Home() {
       >
         <div>
           <h1 className="text-xl md:text-2xl font-bold tracking-[0.15em] uppercase">
-            ISO20022 XRP DEMONSTRATION
+            UNIVERSAL LIFE CYCLE END - END
             <span className="text-xs text-gray-500 ml-2 tracking-normal">v1.0.4 (RUST CORE)</span>
           </h1>
         </div>
