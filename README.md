@@ -51,3 +51,14 @@ Built on a Rust core with an air‑gapped execution model, the system illustrate
 
 This demonstration is provided for research, education, and non‑commercial evaluation. It represents a working prototype of the underlying method and is not a financial product or service.
 Licensed under CC BY‑NC‑ND 4.0. This repository contains a patent‑pending demonstration and is not licensed for commercial use.
+Commercial Use Disclaimer
+
+This repository contains a technical demonstration of the ISO20022 Universal Bridge, including identity capsules, blueprint payloads, deterministic reconstruction logic, and related tokenization workflows.
+
+All source code, documentation, payload structures, and artifacts included in this repository are provided for research, evaluation, and non‑commercial use only unless explicit written permission is granted by the author.
+
+No part of this project — including the blueprint engine, tokenization model, vault logic, serial generation rules, or any associated intellectual property — may be used, sold, licensed, or incorporated into commercial products, services, or platforms without prior authorization.
+
+The repository may reference or include patent‑pending methods and proprietary architectural designs. Commercial deployment, redistribution, or derivative works are strictly prohibited without a formal licensing agreement.
+
+By accessing or using this repository, you acknowledge that all commercial rights are reserved by the author and that this project is provided “as‑is” for demonstration and educational purposes.
