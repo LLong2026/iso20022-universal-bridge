@@ -205,7 +205,7 @@ export default function VaultRetrieve() {
                 </div>
                 <div className="text-[9px] text-gray-600 leading-relaxed">
                   {didRecord
-                    ? '✓ DID found — encrypted data will be automatically decrypted if a Jasper package is stored locally.'
+                    ? '✓ DID found — encrypted data will be automatically decrypted from the server-side vault.'
                     : '⚠ No DID — only public asset metadata will be returned.'}
                 </div>
                 <Button onClick={handleRetrieve} disabled={loading}

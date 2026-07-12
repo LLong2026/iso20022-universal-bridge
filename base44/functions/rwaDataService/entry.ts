@@ -193,7 +193,28 @@ Deno.serve(async (req) => {
       ]);
 
       let decryptedData = null;
-      const pkg = encrypted_package || asset.encrypted_package;
+      let pkg = encrypted_package || asset.encrypted_package;
+
+      // Self-heal: legacy assets ingested before server-side package storage
+      // have no encrypted_package on the record. Reconstruct from plaintext
+      // fields, persist it, and decrypt — so old assets work without re-ingest.
+      if (decrypt && !pkg && asset.is_encrypted && owner_did) {
+        const reconstructedPayload = {
+          asset_type: asset.asset_type,
+          weight: asset.weight,
+          purity: asset.purity,
+          description: asset.description,
+          vault_location: asset.vault_location,
+          satoshi_anchor: asset.satoshi_anchor,
+          file_url: asset.file_url,
+          owner_did: asset.owner_did,
+          signed_at: asset.created_date || new Date().toISOString()
+        };
+        pkg = await encryptData(reconstructedPayload, owner_did);
+        pkg.asset_id = asset.asset_id;
+        await base44.asServiceRole.entities.AssetRecord.update(asset.id, { encrypted_package: pkg });
+      }
+
       if (decrypt && pkg && owner_did) {
         if (pkg.owner_did !== owner_did) {
           return Response.json({ error: 'DID mismatch on encrypted_package' }, { status: 403 });
