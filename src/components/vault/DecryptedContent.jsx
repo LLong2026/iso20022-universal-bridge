@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Copy, CheckCircle, Unlock, FileText, Image, ExternalLink } from 'lucide-react';
+import { Copy, CheckCircle, Unlock, FileText } from 'lucide-react';
+import VaultDocument from '@/components/vault/VaultDocument';
 
 function FieldRow({ label, value }) {
   if (!value && value !== 0) return null;
@@ -61,23 +62,13 @@ export default function DecryptedContent({ decryptedData, contentHash, asset }) 
         <FieldRow label="CURRENT STATUS" value={decryptedData?.current_status?.toUpperCase()} />
       </div>
 
-      {/* Attached file */}
+      {/* Attached file — vault-sealed */}
       {fileUrl && (
-        <div className="border border-[#2a2a2a] bg-black/60 rounded p-2.5">
-          <div className="text-[9px] text-gray-500 tracking-widest mb-2 flex items-center gap-1">
-            <Image className="w-3 h-3" /> ATTACHED DOCUMENT
-          </div>
-          {isImage ? (
-            <img src={fileUrl} alt="artifact"
-              className="w-full max-h-48 object-contain rounded border border-[#333]" />
-          ) : (
-            <a href={fileUrl} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[9px] text-[#d4af37] hover:underline break-all">
-              <ExternalLink className="w-3 h-3 flex-shrink-0" />
-              {fileUrl}
-            </a>
-          )}
-        </div>
+        <VaultDocument
+          fileUrl={fileUrl}
+          fileName={decryptedData?.file_name}
+          fileHash={contentHash}
+        />
       )}
 
       {/* Raw JSON fallback */}

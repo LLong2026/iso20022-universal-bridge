@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 
 import { useNavigate } from 'react-router-dom';
+import VaultDocument from '@/components/vault/VaultDocument';
 import {
   Search, Download, Lock, Unlock, CheckCircle, AlertTriangle,
   Loader, Copy, ArrowLeft, FileText, Hash, ShieldCheck, List, Upload, KeySquare, Eye
@@ -253,9 +254,11 @@ export default function VaultRetrieve() {
                       </div>
 
                       {/* Decrypted data */}
-                      {result.decrypted_data && (
+                      {result.decrypted_data && (() => {
+                        const { file_url, ...safePayload } = result.decrypted_data;
+                        return (
                         <div className="relative border border-green-900/50 bg-green-950/10 p-2 rounded">
-                          <button onClick={() => copy(result.decrypted_data, 'dec')}
+                          <button onClick={() => copy(safePayload, 'dec')}
                             className="absolute top-2 right-2 text-gray-600 hover:text-[#d4af37]">
                             {copied === 'dec' ? <CheckCircle className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
                           </button>
@@ -264,9 +267,19 @@ export default function VaultRetrieve() {
                             <span className="text-[9px] text-green-400 tracking-widest">DECRYPTED PAYLOAD</span>
                           </div>
                           <pre className="text-[8px] text-green-300/80 overflow-auto max-h-32 whitespace-pre-wrap break-all leading-relaxed">
-                            {JSON.stringify(result.decrypted_data, null, 2)}
+                            {JSON.stringify(safePayload, null, 2)}
                           </pre>
                         </div>
+                        );
+                      })()}
+
+                      {/* Vault document viewer */}
+                      {result.decrypted_data?.file_url && (
+                        <VaultDocument
+                          fileUrl={result.decrypted_data.file_url}
+                          fileName={result.decrypted_data.file_name}
+                          fileHash={result.asset?.binding_hash}
+                        />
                       )}
 
                       {/* Transactions */}
