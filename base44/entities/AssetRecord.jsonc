@@ -69,6 +69,10 @@
     "file_url": {
       "type": "string",
       "description": "Supporting document URL"
+    },
+    "encrypted_package": {
+      "type": "object",
+      "description": "Jasper AES-256-GCM encrypted package (ciphertext, wrapped key, IVs)"
     }
   },
   "required": [

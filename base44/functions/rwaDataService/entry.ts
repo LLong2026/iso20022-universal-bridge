@@ -131,7 +131,8 @@ Deno.serve(async (req) => {
         is_encrypted: encrypt,
         verification_status: 'pending',
         current_status: asset.current_status || 'in_vault',
-        file_url: asset.file_url || null
+        file_url: asset.file_url || null,
+        encrypted_package: encryptedPackage
       };
 
       const storedAsset = await base44.asServiceRole.entities.AssetRecord.create(assetRecord);
@@ -192,11 +193,12 @@ Deno.serve(async (req) => {
       ]);
 
       let decryptedData = null;
-      if (decrypt && encrypted_package && owner_did) {
-        if (encrypted_package.owner_did !== owner_did) {
+      const pkg = encrypted_package || asset.encrypted_package;
+      if (decrypt && pkg && owner_did) {
+        if (pkg.owner_did !== owner_did) {
           return Response.json({ error: 'DID mismatch on encrypted_package' }, { status: 403 });
         }
-        decryptedData = await decryptData(encrypted_package, owner_did);
+        decryptedData = await decryptData(pkg, owner_did);
       }
 
       return Response.json({
@@ -245,7 +247,8 @@ Deno.serve(async (req) => {
         owner_did, satoshi_anchor: asset.satoshi_anchor || null,
         description: asset.description || null, vault_location: asset.vault_location || null,
         is_encrypted: encrypt, verification_status: 'pending',
-        current_status: asset.current_status || 'in_vault', file_url: asset.file_url || null
+        current_status: asset.current_status || 'in_vault', file_url: asset.file_url || null,
+        encrypted_package: encryptedPackage
       });
 
       const txId = `TX-${Date.now()}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;

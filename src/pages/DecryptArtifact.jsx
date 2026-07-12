@@ -86,24 +86,12 @@ export default function DecryptArtifact() {
 
   const handleDecrypt = async () => {
     if (!selected) return;
-    const pkg = getStored(`jasper_encrypted_package_${selected.asset_id}`);
-
-    if (!pkg) {
-      setError('NO ENCRYPTED PACKAGE FOUND — you must have ingested an asset with Jasper encryption first. The package is stored locally after ingest.');
-      return;
-    }
-    if (pkg.owner_did && pkg.owner_did !== didRecord.did) {
-      setError('PACKAGE DID MISMATCH — this encrypted package belongs to a different DID.');
-      return;
-    }
-
     setDecrypting(true); setError(null); setDecryptedData(null); setVerified(false);
     try {
       const { data } = await base44.functions.invoke('rwaDataService', {
         action: 'retrieve',
         asset_id: selected.asset_id,
         owner_did: didRecord.did,
-        encrypted_package: pkg,
         decrypt: true
       });
 

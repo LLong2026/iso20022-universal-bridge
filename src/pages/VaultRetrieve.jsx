@@ -57,13 +57,11 @@ export default function VaultRetrieve() {
     if (!assetId.trim()) { setError('ENTER AN ASSET ID'); return; }
     setLoading(true); setError(null); setResult(null);
     try {
-      const pkg = JSON.parse(localStorage.getItem(`jasper_encrypted_package_${assetId.trim()}`) || 'null');
       const payload = {
         action: 'retrieve',
         asset_id: assetId.trim(),
         owner_did: didRecord?.did || undefined,
-        decrypt: !!(pkg && didRecord),
-        encrypted_package: (pkg && didRecord) ? pkg : undefined
+        decrypt: !!didRecord
       };
       const { data } = await base44.functions.invoke('rwaDataService', payload);
       setResult(data);
@@ -103,10 +101,6 @@ export default function VaultRetrieve() {
         private_key_jwk: didRecord.private_key_jwk,
         encrypt: true
       });
-      // Store encrypted package for later decryption
-      if (data.encrypted_package && data.asset_id) {
-        localStorage.setItem(`jasper_encrypted_package_${data.asset_id}`, JSON.stringify(data.encrypted_package));
-      }
       setIngestResult(data);
       // Auto-refresh asset list so new asset is immediately visible
       try {
@@ -452,7 +446,7 @@ export default function VaultRetrieve() {
                         </Link>
                       </div>
                       <div className="mt-2 border border-green-900/40 bg-green-950/10 p-2 rounded text-[8px] text-green-400 leading-relaxed">
-                        ✓ JASPER PACKAGE SAVED LOCALLY — navigate to DECRYPT to unlock contents with your DID.
+                        ✓ JASPER PACKAGE PERSISTED TO VAULT — navigate to DECRYPT to unlock contents with your DID.
                       </div>
                     </div>
                   </Panel>
