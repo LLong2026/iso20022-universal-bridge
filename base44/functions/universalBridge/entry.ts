@@ -251,6 +251,8 @@ Deno.serve(async (req) => {
       });
 
       // Step 7b — Emit immutable settlement event to the Lone Star Ledger
+      // Atomicity: if audit log creation fails, mark the receipt as failed so the
+      // system never has a settled receipt without a corresponding ledger entry.
       const railTag = selected.name.toUpperCase().replace(/ /g, '_');
       const proofShort = (lifecycle.settlement_proof || seedHash).substring(0, 32) + '...';
       const ts = new Date().toISOString().substring(11, 19);
@@ -272,24 +274,48 @@ Deno.serve(async (req) => {
           `\n  BOUND_ASSET_ID: ${normalized.bound_asset_id || 'N/A'}` +
           `\n  OWNER_DID: ${normalized.owner_did || 'N/A'}`;
       }
-      await base44.asServiceRole.entities.AuditLog.create({
-        log_id: receiptId,
-        action: 'SETTLEMENT',
-        entity_type: 'UniversalReceipt',
-        entity_id: receiptId,
-        transaction_id: lifecycle.lifecycle_id || null,
-        log_hash: lifecycle.settlement_proof || seedHash,
-        severity: 'info',
-        after_state: {
-          selected_rail: selected.name, rail_score: selected.score,
-          seed_id: seedId, token_id: tokenId, satoshi_anchor: satoshiAnchor,
-          lifecycle_id: lifecycle.lifecycle_id || null,
-          settlement_proof: lifecycle.settlement_proof || null, receipt_id: receiptId,
-          amount: normalized.amount, currency: normalized.currency,
-          sender: normalized.sender, receiver: normalized.receiver,
-          bound_asset_id: normalized.bound_asset_id, owner_did: normalized.owner_did
-        }
-      });
+      let auditSuccess = true;
+      try {
+        await base44.asServiceRole.entities.AuditLog.create({
+          log_id: receiptId,
+          action: 'SETTLEMENT',
+          entity_type: 'UniversalReceipt',
+          entity_id: receiptId,
+          transaction_id: lifecycle.lifecycle_id || null,
+          log_hash: lifecycle.settlement_proof || seedHash,
+          severity: 'info',
+          after_state: {
+            selected_rail: selected.name, rail_score: selected.score,
+            seed_id: seedId, token_id: tokenId, satoshi_anchor: satoshiAnchor,
+            lifecycle_id: lifecycle.lifecycle_id || null,
+            settlement_proof: lifecycle.settlement_proof || null, receipt_id: receiptId,
+            amount: normalized.amount, currency: normalized.currency,
+            sender: normalized.sender, receiver: normalized.receiver,
+            bound_asset_id: normalized.bound_asset_id, owner_did: normalized.owner_did
+          }
+        });
+      } catch (auditError) {
+        auditSuccess = false;
+        // Rollback: mark receipt as failed if the ledger entry didn't commit
+        try {
+          await base44.asServiceRole.entities.UniversalReceipt.update(receipt.id, {
+            status: 'failed'
+          });
+        } catch (updateError) { /* best-effort rollback */ }
+        return Response.json({
+          error: 'SETTLEMENT FAILED — AUDIT LOG COMMIT ERROR',
+          receipt_id: receiptId,
+          settlement_event: settlementEvent,
+          lifecycle,
+          selection_basis: {
+            priority: normalized.priority,
+            counterparty_tier: normalized.counterparty_tier,
+            amount: normalized.amount, currency: normalized.currency,
+            weights: getWeights(normalized.priority, normalized.amount)
+          },
+          audit_error: auditError.message
+        }, { status: 500 });
+      }
 
       // Step 8 — Flow Summary returned to caller
       return Response.json({
@@ -310,7 +336,8 @@ Deno.serve(async (req) => {
           filters: { max_cost: normalized.max_cost, min_liquidity: normalized.min_liquidity, min_finality: normalized.min_finality }
         },
         lifecycle,
-        receipt
+        receipt,
+        audit_committed: auditSuccess
       });
     }
 
