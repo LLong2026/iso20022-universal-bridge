@@ -62,3 +62,19 @@ No part of this project — including the blueprint engine, tokenization model, 
 The repository may reference or include patent‑pending methods and proprietary architectural designs. Commercial deployment, redistribution, or derivative works are strictly prohibited without a formal licensing agreement.
 
 By accessing or using this repository, you acknowledge that all commercial rights are reserved by the author and that this project is provided “as‑is” for demonstration and educational purposes.
+
+License  
+This repository is released under the Creative Commons BY‑NC‑ND 4.0 License.
+
+You may:
+• view, study, and analyze the source code
+• reference the architectural concepts for academic or research purposes
+• fork the repository for non‑commercial experimentation
+
+You may not:
+• use this code in commercial products or services
+• redistribute modified versions
+• create derivative works based on the blueprint engine, tokenization model, or vault logic
+• integrate any part of this system into proprietary or revenue‑generating platforms
+
+All commercial rights, patent rights, and derivative rights are fully reserved by the author.
