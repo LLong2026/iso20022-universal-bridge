@@ -57,7 +57,7 @@ export default function VaultRetrieve() {
     if (!assetId.trim()) { setError('ENTER AN ASSET ID'); return; }
     setLoading(true); setError(null); setResult(null);
     try {
-      const pkg = JSON.parse(localStorage.getItem('jasper_encrypted_package') || 'null');
+      const pkg = JSON.parse(localStorage.getItem(`jasper_encrypted_package_${assetId.trim()}`) || 'null');
       const payload = {
         action: 'retrieve',
         asset_id: assetId.trim(),
@@ -104,8 +104,8 @@ export default function VaultRetrieve() {
         encrypt: true
       });
       // Store encrypted package for later decryption
-      if (data.encrypted_package) {
-        localStorage.setItem('jasper_encrypted_package', JSON.stringify(data.encrypted_package));
+      if (data.encrypted_package && data.asset_id) {
+        localStorage.setItem(`jasper_encrypted_package_${data.asset_id}`, JSON.stringify(data.encrypted_package));
       }
       setIngestResult(data);
       // Auto-refresh asset list so new asset is immediately visible

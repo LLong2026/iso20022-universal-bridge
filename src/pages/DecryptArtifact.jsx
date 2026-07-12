@@ -86,7 +86,7 @@ export default function DecryptArtifact() {
 
   const handleDecrypt = async () => {
     if (!selected) return;
-    const pkg = getStored(PKG_KEY);
+    const pkg = getStored(`jasper_encrypted_package_${selected.asset_id}`);
 
     if (!pkg) {
       setError('NO ENCRYPTED PACKAGE FOUND — you must have ingested an asset with Jasper encryption first. The package is stored locally after ingest.');
