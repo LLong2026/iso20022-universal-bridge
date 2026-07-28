@@ -1,0 +1,75 @@
+{
+  "name": "AegisHealingEvent",
+  "type": "object",
+  "properties": {
+    "anomaly_id": {
+      "type": "string"
+    },
+    "playbook_id": {
+      "type": "string"
+    },
+    "playbook_name": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "steps_executed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "result": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "trigger": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string"
+    },
+    "duration_seconds": {
+      "type": "number"
+    },
+    "learning_extracted": {
+      "type": "string"
+    },
+    "context_snapshot": {
+      "type": "object"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "action_taken": {
+      "type": "string"
+    },
+    "result_summary": {
+      "type": "string"
+    },
+    "execution_time_ms": {
+      "type": "number"
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id"
+  ]
+}

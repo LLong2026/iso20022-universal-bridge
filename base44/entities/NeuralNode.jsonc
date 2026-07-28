@@ -1,0 +1,37 @@
+{
+  "name": "NeuralNode",
+  "type": "object",
+  "properties": {
+    "layer": {
+      "type": "number"
+    },
+    "node_type": {
+      "type": "string"
+    },
+    "pattern_type": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "learning_rate": {
+      "type": "number"
+    },
+    "activation_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_activated": {
+      "type": "string"
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "node_type"
+  ]
+}

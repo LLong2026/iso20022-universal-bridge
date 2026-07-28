@@ -1,0 +1,44 @@
+{
+  "name": "OrchestratorAgent",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "current_task_count": {
+      "type": "number",
+      "default": 0
+    },
+    "max_task_capacity": {
+      "type": "number"
+    },
+    "health_score": {
+      "type": "number"
+    },
+    "avg_latency_ms": {
+      "type": "number"
+    },
+    "avg_token_efficiency": {
+      "type": "number"
+    },
+    "last_heartbeat_at": {
+      "type": "string"
+    },
+    "app_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "role"
+  ]
+}

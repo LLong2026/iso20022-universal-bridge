@@ -1,0 +1,67 @@
+{
+  "name": "AegisAnomaly",
+  "type": "object",
+  "properties": {
+    "anomaly_type": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "confidence_score": {
+      "type": "number"
+    },
+    "detected_at": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "affected_agent_id": {
+      "type": "string"
+    },
+    "affected_node_id": {
+      "type": "string"
+    },
+    "component": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "root_cause": {
+      "type": "string"
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "linked_playbook_id": {
+      "type": "string"
+    },
+    "linked_healing_event_id": {
+      "type": "string"
+    },
+    "estimated_break_year": {
+      "type": "number"
+    },
+    "vulnerable_algorithm": {
+      "type": "string"
+    },
+    "suggested_pqc_algorithm": {
+      "type": "string"
+    },
+    "quantum_threat_level": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "anomaly_type"
+  ]
+}

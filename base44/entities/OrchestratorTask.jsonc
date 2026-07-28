@@ -1,0 +1,40 @@
+{
+  "name": "OrchestratorTask",
+  "type": "object",
+  "properties": {
+    "agent_id": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "task_type": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string"
+    },
+    "result_summary": {
+      "type": "string"
+    },
+    "token_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "task_type"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "AegisPlaybook",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "anomaly_type": {
+      "type": "string"
+    },
+    "trigger_condition": {
+      "type": "string"
+    },
+    "confidence_threshold": {
+      "type": "number"
+    },
+    "isolation_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "healing_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "success_count": {
+      "type": "number",
+      "default": 0
+    },
+    "failure_count": {
+      "type": "number",
+      "default": 0
+    },
+    "avg_resolution_time_ms": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "name",
+    "anomaly_type"
+  ]
+}

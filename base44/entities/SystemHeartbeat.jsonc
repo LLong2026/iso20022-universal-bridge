@@ -1,0 +1,39 @@
+{
+  "name": "SystemHeartbeat",
+  "type": "object",
+  "properties": {
+    "agent_id": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "latency_ms": {
+      "type": "number"
+    },
+    "cpu_usage": {
+      "type": "number"
+    },
+    "memory_usage": {
+      "type": "number"
+    },
+    "token_usage": {
+      "type": "number"
+    },
+    "error_count": {
+      "type": "number"
+    },
+    "last_healthy_at": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "agent_id"
+  ]
+}

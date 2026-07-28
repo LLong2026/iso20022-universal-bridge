@@ -1,0 +1,74 @@
+{
+  "name": "Pattern",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "pattern_name": {
+      "type": "string"
+    },
+    "pattern_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "anomaly_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "common_root_causes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "occurrence_count": {
+      "type": "number",
+      "default": 0
+    },
+    "first_seen": {
+      "type": "string"
+    },
+    "last_seen": {
+      "type": "string"
+    },
+    "detected_at": {
+      "type": "string"
+    },
+    "confidence_score": {
+      "type": "number"
+    },
+    "recommended_playbook_id": {
+      "type": "string"
+    },
+    "source_domain": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "auto_heal_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "description": {
+      "type": "string"
+    },
+    "occurrences": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

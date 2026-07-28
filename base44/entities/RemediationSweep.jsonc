@@ -1,0 +1,48 @@
+{
+  "name": "RemediationSweep",
+  "type": "object",
+  "properties": {
+    "sweep_type": {
+      "type": "string"
+    },
+    "triggered_by": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "anomalies_found": {
+      "type": "number",
+      "default": 0
+    },
+    "anomalies_resolved": {
+      "type": "number",
+      "default": 0
+    },
+    "healing_events_created": {
+      "type": "number",
+      "default": 0
+    },
+    "nodes_refreshed": {
+      "type": "number",
+      "default": 0
+    },
+    "orphans_purged": {
+      "type": "number",
+      "default": 0
+    },
+    "agents_rebalanced": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "sweep_type"
+  ]
+}

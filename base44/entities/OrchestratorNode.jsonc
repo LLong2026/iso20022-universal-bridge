@@ -1,0 +1,39 @@
+{
+  "name": "OrchestratorNode",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string"
+    },
+    "task_count": {
+      "type": "number",
+      "default": 0
+    },
+    "capacity": {
+      "type": "number"
+    },
+    "last_active_at": {
+      "type": "string"
+    },
+    "is_orphan": {
+      "type": "boolean",
+      "default": false
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "type"
+  ]
+}

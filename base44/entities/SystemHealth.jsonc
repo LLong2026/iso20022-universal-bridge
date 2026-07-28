@@ -1,0 +1,93 @@
+{
+  "name": "SystemHealth",
+  "type": "object",
+  "properties": {
+    "overall_status": {
+      "type": "string"
+    },
+    "health_score": {
+      "type": "number"
+    },
+    "heartbeat_count": {
+      "type": "number"
+    },
+    "heartbeat_status": {
+      "type": "string"
+    },
+    "active_anomaly_count": {
+      "type": "number"
+    },
+    "active_anomalies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resolved_anomalies": {
+      "type": "number"
+    },
+    "successful_heals": {
+      "type": "number"
+    },
+    "total_healing_events": {
+      "type": "number"
+    },
+    "success_rate": {
+      "type": "number"
+    },
+    "agent_count": {
+      "type": "number"
+    },
+    "node_count": {
+      "type": "number"
+    },
+    "orphan_node_count": {
+      "type": "number"
+    },
+    "avg_latency_ms": {
+      "type": "number"
+    },
+    "avg_recovery_ms": {
+      "type": "number"
+    },
+    "avg_token_efficiency": {
+      "type": "number"
+    },
+    "uptime_percentage": {
+      "type": "number"
+    },
+    "pqc_readiness_score": {
+      "type": "number"
+    },
+    "vulnerable_crypto_count": {
+      "type": "number"
+    },
+    "entities_checked": {
+      "type": "number"
+    },
+    "functions_inventory": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "snapshot_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "app_id": {
+      "type": "string"
+    },
+    "chronos_vitality": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "snapshot_id"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "SelfImprovementProposal",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "expected_impact": {
+      "type": "string"
+    },
+    "implementation_difficulty": {
+      "type": "string"
+    },
+    "source_pattern_id": {
+      "type": "string"
+    },
+    "source_insight_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "proposed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

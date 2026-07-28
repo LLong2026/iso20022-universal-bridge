@@ -1,0 +1,39 @@
+{
+  "name": "PredictiveAlert",
+  "type": "object",
+  "properties": {
+    "alert_type": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "predicted_issue": {
+      "type": "string"
+    },
+    "probability": {
+      "type": "number"
+    },
+    "recommended_action": {
+      "type": "string"
+    },
+    "affected_components": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "alert_type"
+  ]
+}
