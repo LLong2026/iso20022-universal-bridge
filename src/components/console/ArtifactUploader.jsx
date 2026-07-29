@@ -32,6 +32,8 @@ export default function ArtifactUploader({ onArtifactReady }) {
   const [description, setDescription] = useState('');
   const [uploading, setUploading] = useState(false);
   const [saved, setSaved] = useState(null); // { serial_number, id }
+  const [uploadWarning, setUploadWarning] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const handleTypeChange = (val) => {
     setArtifactType(val);
@@ -46,14 +48,20 @@ export default function ArtifactUploader({ onArtifactReady }) {
   const handleRegister = async () => {
     if (!artifactType) return;
     setUploading(true);
+    setErrorMsg(null);
+    setUploadWarning(null);
     try {
       let fileUrl = null;
       let fileName = null;
 
       if (file) {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file });
-        fileUrl = file_url;
-        fileName = file.name;
+        try {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          fileUrl = file_url;
+          fileName = file.name;
+        } catch (uploadErr) {
+          setUploadWarning('File upload failed — artifact registered without document. You can attach it later.');
+        }
       }
 
       const serial = generateSerial(artifactType);
@@ -70,6 +78,7 @@ export default function ArtifactUploader({ onArtifactReady }) {
       if (onArtifactReady) onArtifactReady(serial);
     } catch (err) {
       console.error('Artifact registration error:', err);
+      setErrorMsg(err.message || 'Registration failed. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -119,6 +128,17 @@ export default function ArtifactUploader({ onArtifactReady }) {
             className="bg-black border-[#444] text-[#d4af37] font-mono text-xs h-9"
           />
         </div>
+
+        {uploadWarning && (
+          <div className="border border-yellow-500/50 bg-yellow-500/10 p-2 rounded text-[10px] text-yellow-400">
+            {uploadWarning}
+          </div>
+        )}
+        {errorMsg && (
+          <div className="border border-red-500/50 bg-red-500/10 p-2 rounded text-[10px] text-red-400">
+            {errorMsg}
+          </div>
+        )}
 
         {/* Register button */}
         <Button
