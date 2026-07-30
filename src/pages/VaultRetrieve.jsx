@@ -34,6 +34,8 @@ export default function VaultRetrieve() {
   });
   const [ingestResult, setIngestResult] = useState(null);
   const [ingestLoading, setIngestLoading] = useState(false);
+  const [ingestFile, setIngestFile] = useState(null);
+  const [ingestUploadWarning, setIngestUploadWarning] = useState(null);
 
   const navigate = useNavigate();
   const [didRecord, setDidRecord] = useState(getStoredDid());
@@ -83,8 +85,19 @@ export default function VaultRetrieve() {
 
   const handleIngest = async () => {
     if (!didRecord) { setError('NO DID — generate one first.'); return; }
-    setIngestLoading(true); setError(null); setIngestResult(null);
+    setIngestLoading(true); setError(null); setIngestResult(null); setIngestUploadWarning(null);
     try {
+      let fileUrl = null;
+      let fileName = null;
+      if (ingestFile) {
+        try {
+          const uploaded = await base44.integrations.Core.UploadFile({ file: ingestFile });
+          fileUrl = uploaded.file_url;
+          fileName = ingestFile.name;
+        } catch {
+          setIngestUploadWarning('File upload failed — asset ingested with metadata only. Attach file later.');
+        }
+      }
       const asset = {
         asset_type: ingestForm.asset_type,
         weight: parseFloat(ingestForm.weight) || null,
@@ -93,6 +106,8 @@ export default function VaultRetrieve() {
         vault_location: ingestForm.vault_location || null,
         satoshi_anchor: ingestForm.satoshi_anchor || null,
         xrp_destination: ingestForm.xrp_destination || null,
+        file_url: fileUrl,
+        file_name: fileName,
       };
       const { data } = await base44.functions.invoke('rwaDataService', {
         action: 'full_ingest',
@@ -384,6 +399,37 @@ export default function VaultRetrieve() {
                     />
                   </div>
                 ))}
+
+                {/* Blueprint / document attachment */}
+                <div>
+                  <label className="block text-[9px] text-gray-500 mb-1 tracking-widest">BLUEPRINT / DOCUMENT</label>
+                  <div className="flex items-center gap-2">
+                    <label className="flex-1 cursor-pointer border border-[#444] hover:border-[#d4af37] bg-black rounded h-8 flex items-center px-2 text-[9px] text-gray-500 transition-colors">
+                      <FileText className="w-3 h-3 mr-1.5 text-[#d4af37]/70" />
+                      {ingestFile ? ingestFile.name : 'Choose .docx, .pdf, image...'}
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={e => setIngestFile(e.target.files?.[0] || null)}
+                      />
+                    </label>
+                    {ingestFile && (
+                      <button
+                        onClick={() => setIngestFile(null)}
+                        className="text-[8px] text-gray-600 hover:text-red-400 px-1"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  <div className="text-[8px] text-gray-700 mt-0.5">Attached document is encrypted into the Jasper payload.</div>
+                </div>
+
+                {ingestUploadWarning && (
+                  <div className="border border-yellow-500/50 bg-yellow-500/10 p-2 rounded text-[9px] text-yellow-400">
+                    {ingestUploadWarning}
+                  </div>
+                )}
 
                 <Button onClick={handleIngest} disabled={ingestLoading || !didRecord}
                   className="w-full bg-[#d4af37] hover:bg-[#b8962f] text-black font-bold uppercase tracking-wider h-10">
