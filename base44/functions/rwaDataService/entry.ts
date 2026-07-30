@@ -132,6 +132,8 @@ Deno.serve(async (req) => {
         verification_status: 'pending',
         current_status: asset.current_status || 'in_vault',
         file_url: asset.file_url || null,
+        file_name: asset.file_name || null,
+        blueprint_hash: asset.blueprint_hash || null,
         encrypted_package: encryptedPackage
       };
 
@@ -207,6 +209,8 @@ Deno.serve(async (req) => {
           vault_location: asset.vault_location,
           satoshi_anchor: asset.satoshi_anchor,
           file_url: asset.file_url,
+          file_name: asset.file_name || null,
+          blueprint_hash: asset.blueprint_hash || null,
           owner_did: asset.owner_did,
           signed_at: asset.created_date || new Date().toISOString()
         };
@@ -269,6 +273,7 @@ Deno.serve(async (req) => {
         description: asset.description || null, vault_location: asset.vault_location || null,
         is_encrypted: encrypt, verification_status: 'pending',
         current_status: asset.current_status || 'in_vault', file_url: asset.file_url || null,
+        file_name: asset.file_name || null, blueprint_hash: asset.blueprint_hash || null,
         encrypted_package: encryptedPackage
       });
 

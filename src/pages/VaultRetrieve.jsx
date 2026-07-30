@@ -89,8 +89,12 @@ export default function VaultRetrieve() {
     try {
       let fileUrl = null;
       let fileName = null;
+      let blueprintHash = null;
       if (ingestFile) {
         try {
+          const fileBuffer = await ingestFile.arrayBuffer();
+          const hashBuffer = await crypto.subtle.digest('SHA-256', fileBuffer);
+          blueprintHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
           const uploaded = await base44.integrations.Core.UploadFile({ file: ingestFile });
           fileUrl = uploaded.file_url;
           fileName = ingestFile.name;
@@ -98,16 +102,21 @@ export default function VaultRetrieve() {
           setIngestUploadWarning('File upload failed — asset ingested with metadata only. Attach file later.');
         }
       }
+      // Derive Satoshi anchor + vault alignment from the 32-byte blueprint hash
+      // so the record carries cryptographic intent, not just static metadata.
+      const satoshiAnchor = ingestForm.satoshi_anchor || (blueprintHash ? `${blueprintHash.slice(0, 16)}:${blueprintHash.slice(16, 24)}` : null);
+      const vaultLocation = ingestForm.vault_location || (blueprintHash ? `VAULT-0x${blueprintHash.slice(0, 8)}` : null);
       const asset = {
         asset_type: ingestForm.asset_type,
         weight: parseFloat(ingestForm.weight) || null,
         purity: ingestForm.purity || null,
         description: ingestForm.description || null,
-        vault_location: ingestForm.vault_location || null,
-        satoshi_anchor: ingestForm.satoshi_anchor || null,
+        vault_location: vaultLocation,
+        satoshi_anchor: satoshiAnchor,
         xrp_destination: ingestForm.xrp_destination || null,
         file_url: fileUrl,
         file_name: fileName,
+        blueprint_hash: blueprintHash,
       };
       const { data } = await base44.functions.invoke('rwaDataService', {
         action: 'full_ingest',

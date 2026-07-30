@@ -70,6 +70,14 @@
       "type": "string",
       "description": "Supporting document URL"
     },
+    "file_name": {
+      "type": "string",
+      "description": "Original filename of the blueprint/document"
+    },
+    "blueprint_hash": {
+      "type": "string",
+      "description": "32-byte SHA-256 hash of the blueprint document \u2014 cryptographic intent anchor"
+    },
     "encrypted_package": {
       "type": "object",
       "description": "Jasper AES-256-GCM encrypted package (ciphertext, wrapped key, IVs)"
